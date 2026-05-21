@@ -1,0 +1,38 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Edit Event{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="admin-page-header">
+        <h1>Edit Event</h1>
+    </div>
+    
+    <div class="card">
+        <div class="card-body pb-3">
+            {% set titleAttr = form.title.vars.attr|merge({'class': (form.title.vars.attr.class|default('') ~ ' form-control')|trim}) %}
+            {% set descriptionAttr = form.description.vars.attr|merge({'class': (form.description.vars.attr.class|default('') ~ ' form-control')|trim}) %}
+            {% set dateAttr = form.eventDate.vars.attr|merge({'class': (form.eventDate.vars.attr.class|default('') ~ ' form-control')|trim}) %}
+            {% set locationAttr = form.location.vars.attr|merge({'class': (form.location.vars.attr.class|default('') ~ ' form-control')|trim}) %}
+            {% set priceAttr = form.price.vars.attr|merge({'class': (form.price.vars.attr.class|default('') ~ ' form-control')|trim}) %}
+            {% set organizerAttr = form.organizer.vars.attr|merge({'class': (form.organizer.vars.attr.class|default('') ~ ' form-select')|trim}) %}
+
+            {{ form_start(form, {'attr': {'class': 'admin-form'}}) }}
+                <div class="form-grid">
+                    {{ form_row(form.title, {'attr': titleAttr}) }}
+                    {{ form_row(form.eventDate, {'attr': dateAttr}) }}
+                    {{ form_row(form.location, {'attr': locationAttr}) }}
+                    {{ form_row(form.price, {'attr': priceAttr}) }}
+                    {{ form_row(form.organizer, {'attr': organizerAttr}) }}
+                    {{ form_row(form.description, {'attr': descriptionAttr, 'row_attr': {'class': 'full-width'}}) }}
+                </div>
+                <div class="form-actions">
+                    <a href="{{ path('app_event_index') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}
+

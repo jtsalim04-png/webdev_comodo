@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Choose Account Type - Comodo Booking{% endblock %}
+
+{% block body %}
+    <div class="user-dashboard" style="max-width: 900px;">
+        <h1 class="mb-3">Choose your account type</h1>
+        <p class="mb-4">
+            You’re signed in with Google as <strong>{{ pending_email }}</strong>.
+            Pick whether you want to use Comodo Booking as a <strong>User</strong> or an <strong>Organizer</strong>.
+        </p>
+
+        <form method="post" action="{{ path('choose_role') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('choose_role') }}">
+
+            <div class="role-cards" style="margin-top: 1rem;">
+                <button type="submit" name="role" value="ROLE_USER" class="role-card" style="text-align:left;">
+                    <div class="role-card__title">User</div>
+                    <div class="role-card__desc">Book events and manage your tickets.</div>
+                </button>
+
+                <button type="submit" name="role" value="ROLE_ORGANIZER" class="role-card" style="text-align:left;">
+                    <div class="role-card__title">Organizer</div>
+                    <div class="role-card__desc">Create events and manage tickets.</div>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <style>
+        .role-cards {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.75rem;
+        }
+
+        .role-card {
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            border-radius: 14px;
+            padding: 0.9rem 1rem;
+            background: #fff;
+            cursor: pointer;
+            transition: transform 0.12s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+        }
+
+        .role-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+            border-color: rgba(169, 129, 82, 0.55);
+        }
+
+        .role-card__title {
+            font-weight: 800;
+            margin-bottom: 0.35rem;
+        }
+
+        .role-card__desc {
+            font-size: 0.95rem;
+            color: rgba(34, 34, 33, 0.7);
+            line-height: 1.4;
+        }
+
+        @media (max-width: 640px) {
+            .role-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+{% endblock %}
+

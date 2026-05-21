@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Admin Panel{% endblock %} - Comodo Booking</title>
+  <link rel="icon" type="image/png" href="{{ asset('images/comodo app logo.png') }}" />
+  <!-- Use Font Awesome 5 so templates using `fas fa-*` render correctly -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
+  <style>
+    @media (min-width: 769px) {
+      html.dashboard-lock, body.dashboard-lock { height: 100vh; overflow: hidden; }
+      .admin-main.dashboard-locked { height: 100vh; overflow: hidden; }
+    }
+  </style>
+  {% block stylesheets %}{% endblock %}
+</head>
+<body data-route="{{ app.request.get('_route') }}">
+  <div class="admin-layout">
+    <button type="button" class="admin-burger" aria-label="Open admin menu" aria-controls="admin-sidebar" aria-expanded="false">
+      &#9776;
+    </button>
+    <div class="admin-sidebar-overlay" data-admin-sidebar-overlay aria-hidden="true"></div>
+    <aside class="admin-sidebar">
+      <div class="admin-brand">
+        <a href="{{ path('admin_dashboard') }}" aria-label="Go to admin dashboard">
+          <img src="{{ asset('images/Comodo Booking Logo.png') }}" alt="Comodo" />
+        </a>
+        <h2>Welcome, Admin</h2>
+      </div>
+
+      <nav class="admin-nav">
+        <a href="{{ path('admin_dashboard') }}" class="{% if app.request.get('_route') == 'admin_dashboard' %}active{% endif %}">Overview</a>
+        <a href="{{ path('app_user_index') }}" class="{% if app.request.get('_route') starts with 'app_user_' %}active{% endif %}">Users</a>
+        <a href="{{ path('app_event_index') }}" class="{% if app.request.get('_route') starts with 'app_event_' %}active{% endif %}">Events</a>
+        <a href="{{ path('app_ticket_index') }}" class="{% if app.request.get('_route') starts with 'app_ticket_' %}active{% endif %}">Tickets / Sales</a>
+        <a href="{{ path('admin_activity_logs') }}" class="{% if app.request.get('_route') starts with 'admin_activity' or app.request.get('_route') == 'admin_activity_logs' %}active{% endif %}">Activity Logs</a>
+      </nav>
+
+      <div class="admin-logout">
+        <form method="POST" action="{{ path('app_logout') }}" id="logout-form" style="display:none;">
+          {{ csrf_token('logout') }}
+        </form>
+        <a href="#" class="login-btn" id="logout-btn">⟡ Logout</a>
+      </div>
+
+      <div class="admin-footer">
+        <small>© {{ "now"|date("Y") }} Comodo</small>
+      </div>
+    </aside>
+
+    <main class="admin-main">
+      {% for label, messages in app.flashes %}
+        {% for message in messages %}
+          <div class="alert alert-{{ label }} alert-dismissible fade show m-3" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endfor %}
+
+      {% block body %}{% endblock %}
+    </main>
+  </div>
+
+{% block javascripts %}
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+  {% block importmap %}{{ importmap('app') }}{% endblock %}
+  <script>
+    function initDataTables() {
+      if (!window.jQuery || !window.jQuery.fn.DataTable) {
+        console.warn('DataTables failed to load');
+        return;
+      }
+
+      document.querySelectorAll('table.datatable').forEach(function(table) {
+        var $table = window.jQuery(table);
+        if ($table.hasClass('dataTable')) {
+          return; // already initialized
+        }
+        $table.DataTable({
+          pageLength: 10,
+          order: [],
+          responsive: false,
+          autoWidth: false,
+          scrollX: true,
+          scrollCollapse: true,
+          width: '100%',
+          language: {
+            search: 'Search:'
+          },
+          initComplete: function() {
+            const api = this.api();
+            window.setTimeout(function() { api.columns.adjust(); }, 100);
+            window.setTimeout(function() { api.columns.adjust(); }, 300);
+          }
+        });
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', initDataTables);
+    document.addEventListener('turbo:load', initDataTables);
+  </script>
+  <script>
+    (function() {
+      const lockRoutes = ['admin_dashboard', 'admin_dashboard_alt', 'app_user_index', 'app_event_index', 'app_ticket_index'];
+      function toggleLock(enable) {
+        const html = document.documentElement;
+        const body = document.body;
+        const main = document.querySelector('.admin-main');
+        html.classList.toggle('dashboard-lock', enable);
+        body.classList.toggle('dashboard-lock', enable);
+        if (main) {
+          main.classList.toggle('dashboard-locked', enable);
+        }
+      }
+      function evaluateLock() {
+        const route = document.body?.dataset?.route || '';
+        toggleLock(lockRoutes.includes(route));
+      }
+      document.addEventListener('DOMContentLoaded', evaluateLock);
+      document.addEventListener('turbo:load', evaluateLock);
+      document.addEventListener('turbo:before-visit', () => toggleLock(false));
+    })();
+  </script>
+{% endblock %}
+  <script>
+    document.getElementById('logout-btn')?.addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('logout-form')?.submit();
+    });
+  </script>
+
+  <script>
+    (function() {
+      const layout = document.querySelector('.admin-layout');
+      const burger = document.querySelector('.admin-burger');
+      const overlay = document.querySelector('[data-admin-sidebar-overlay]');
+      if (!layout || !burger || !overlay) return;
+
+      const adjustAdminTables = () => {
+        if (!(window.jQuery && window.jQuery.fn && window.jQuery.fn.DataTable)) return;
+
+        document.querySelectorAll('table.datatable').forEach(function(table) {
+          // Only adjust if DataTable is already initialized.
+          if (window.jQuery.fn.DataTable.isDataTable(table)) {
+            try {
+              const dt = window.jQuery(table).DataTable();
+              dt.columns.adjust();
+            } catch (e) {
+              // no-op
+            }
+          }
+        });
+      };
+
+      // Prioritize desktop/web view: adjust shortly after init.
+      window.setTimeout(adjustAdminTables, 200);
+      window.setTimeout(adjustAdminTables, 600);
+      window.addEventListener('load', function() {
+        window.setTimeout(adjustAdminTables, 150);
+        window.setTimeout(adjustAdminTables, 500);
+      });
+
+      // If fonts finish loading after initial render, columns can reflow.
+      if (document.fonts && typeof document.fonts.ready?.then === 'function') {
+        document.fonts.ready.then(function() {
+          window.setTimeout(adjustAdminTables, 100);
+          window.setTimeout(adjustAdminTables, 400);
+        });
+      }
+
+      const setOpen = (open) => {
+        layout.classList.toggle('sidebar-open', open);
+        burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+
+        // DataTables can mis-align columns after layout changes; force recalculation.
+        window.setTimeout(adjustAdminTables, 250);
+      };
+
+      burger.addEventListener('click', function() {
+        const isOpen = layout.classList.contains('sidebar-open');
+        setOpen(!isOpen);
+      });
+
+      overlay.addEventListener('click', function() {
+        setOpen(false);
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          setOpen(false);
+        }
+      });
+
+      // Also adjust on window resize.
+      let resizeTimer = null;
+      window.addEventListener('resize', function() {
+        if (resizeTimer) window.clearTimeout(resizeTimer);
+        resizeTimer = window.setTimeout(() => {
+          adjustAdminTables();
+        }, 200);
+      });
+
+      // Fullscreen can change available width without always firing a useful resize event.
+      document.addEventListener('fullscreenchange', function() {
+        window.setTimeout(adjustAdminTables, 200);
+      });
+
+      // Turbo navigation can swap pages without a full browser reload.
+      document.addEventListener('turbo:load', function() {
+        window.setTimeout(adjustAdminTables, 250);
+        window.setTimeout(adjustAdminTables, 650);
+      });
+    })();
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,56 @@
+{% set emailAttr = form.email.vars.attr|merge({'class': (form.email.vars.attr.class|default('') ~ ' form-control')|trim}) %}
+{% set passwordAttr = form.password.vars.attr|merge({'class': (form.password.vars.attr.class|default('') ~ ' form-control password-field')|trim}) %}
+{% set firstNameAttr = form.firstName.vars.attr|merge({'class': (form.firstName.vars.attr.class|default('') ~ ' form-control')|trim}) %}
+{% set lastNameAttr = form.lastName.vars.attr|merge({'class': (form.lastName.vars.attr.class|default('') ~ ' form-control')|trim}) %}
+{% set roleAttr = form.role.vars.attr|merge({'class': (form.role.vars.attr.class|default('') ~ ' form-select')|trim}) %}
+{% set activeAttr = form.isActive.vars.attr|merge({'class': (form.isActive.vars.attr.class|default('') ~ ' form-check-input')|trim}) %}
+
+{{ form_start(form, {'attr': {'class': 'admin-form'}}) }}
+    <div class="form-grid">
+        {{ form_row(form.email, {'attr': emailAttr}) }}
+        <div class="mb-3 password-wrapper">
+            {{ form_label(form.password) }}
+            <div class="input-group">
+                {{ form_widget(form.password, {'attr': passwordAttr}) }}
+                <button type="button" class="btn btn-outline-secondary toggle-password" aria-label="Show password" title="Show password">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+            {{ form_errors(form.password) }}
+        </div>
+        {{ form_row(form.firstName, {'attr': firstNameAttr}) }}
+        {{ form_row(form.lastName, {'attr': lastNameAttr}) }}
+        {{ form_row(form.role, {'attr': roleAttr}) }}
+        {{ form_row(form.isActive, {'attr': activeAttr}) }}
+    </div>
+    <div class="form-actions">
+        <a href="{{ back_path|default('#') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save me-2"></i>{{ button_label|default('Save') }}
+        </button>
+    </div>
+{{ form_end(form) }}
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.password-wrapper').forEach(wrapper => {
+            const input = wrapper.querySelector('input[type="password"], input[type="text"]');
+            const toggle = wrapper.querySelector('.toggle-password');
+            if (!input || !toggle) return;
+
+            // If the value is a masked placeholder, keep it but treat as unchanged
+            if (input.dataset.maskPlaceholder) {
+                input.value = input.dataset.maskPlaceholder;
+            }
+
+            toggle.addEventListener('click', () => {
+                const isPassword = input.type === 'password';
+                input.type = isPassword ? 'text' : 'password';
+                toggle.innerHTML = isPassword ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+            });
+        });
+    });
+</script>
+

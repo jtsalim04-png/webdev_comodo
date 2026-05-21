@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Organizer Dashboard{% endblock %}
+{% block body_class %}tarot-bg-page{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1>Organizer Dashboard</h1>
+    
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5>Total Events</h5>
+                    <p style="font-size: 2em;">{{ stats.total_events }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5>Total Tickets</h5>
+                    <p style="font-size: 2em;">{{ stats.total_tickets }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5>My Events</h5>
+            <a href="{{ path('organizer_events_new') }}" class="btn btn-primary btn-sm">Create New Event</a>
+        </div>
+        <div class="card-body">
+            {% if events|length > 0 %}
+                <table class="table datatable">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Date</th>
+                            <th>Location</th>
+                            <th>Price</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for event in events %}
+                        <tr>
+                            <td>{{ event.title }}</td>
+                            <td>{{ event.eventDate|date('M d, Y H:i') }}</td>
+                            <td>{{ event.location }}</td>
+                            <td>₱{{ event.price }}</td>
+                            <td>
+                                <a href="{{ path('organizer_events_show', {'id': event.id}) }}" class="btn btn-sm btn-info">View</a>
+                                <a href="{{ path('organizer_events_edit', {'id': event.id}) }}" class="btn btn-sm btn-warning">Edit</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-muted">No events yet. <a href="{{ path('organizer_events_new') }}">Create your first event</a></p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

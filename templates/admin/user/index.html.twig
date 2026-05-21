@@ -1,0 +1,333 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Admin • Users{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .order-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            z-index: 2000;
+        }
+
+        .order-modal-backdrop.show {
+            display: flex;
+        }
+
+        .order-modal {
+            background: #fffefc;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(169, 129, 82, 0.2);
+            width: 100%;
+            max-width: 1100px;
+            overflow: hidden;
+        }
+
+        .order-modal__header {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .order-modal__body {
+            padding: 1.25rem 1.5rem 1.5rem;
+            max-height: 75vh;
+            overflow-y: auto;
+        }
+
+        .order-modal__close {
+            border: none;
+            background: none;
+            font-size: 1.5rem;
+            line-height: 1;
+            color: #555;
+            cursor: pointer;
+        }
+
+        .order-chip {
+            background: #f3ede3;
+            color: #222;
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 768px) {
+            .order-modal__header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .order-chip {
+                width: 100%;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">User Management</h1>
+    </div>
+
+    <a href="{{ path('app_user_new') }}" class="btn btn-create">
+        <i class="fas fa-plus me-2"></i>Create New User
+    </a>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive admin-table-wrap">
+                <table class="admin-table datatable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Email</th>
+                            <th>Name</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td class="text-muted">#{{ user.id }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.firstName }} {{ user.lastName }}</td>
+                            <td>
+                                <span class="badge {{ user.role == 'ROLE_ADMIN' ? 'bg-danger' : (user.role == 'ROLE_ORGANIZER' ? 'bg-info' : 'bg-primary') }}">
+    {% if user.role == 'ROLE_USER' %}User{% else %}{{ user.role|replace({'ROLE_': ''})|title }}{% endif %}
+</span>
+                            </td>
+                            <td>
+                                <span class="badge {% if user.isActive %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ user.isActive ? 'Active' : 'Inactive' }}
+                                </span>
+                            </td>
+                            <td>{{ user.createdAt ? user.createdAt|date('M d, Y H:i') : '' }}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    {% if user.role == 'ROLE_USER' %}
+                                    <button type="button"
+                                            class="btn-action btn-info"
+                                            data-open-order
+                                            data-user-id="{{ user.id }}"
+                                            data-user-name="{{ user.firstName }} {{ user.lastName }}"
+                                            data-bs-toggle="tooltip"
+                                            aria-label="Start order"
+                                            title="Start an order for this user">
+                                        <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                                    </button>
+                                    {% endif %}
+                                    <a href="{{ path('app_user_show', {'id': user.id}) }}" 
+                                       class="btn-action" 
+                                       data-bs-toggle="tooltip" 
+                                       aria-label="View details"
+                                       title="View details">
+                                        <i class="fas fa-eye" aria-hidden="true"></i>
+                                    </a>
+                                    <a href="{{ path('app_user_edit', {'id': user.id}) }}" 
+                                       class="btn-action" 
+                                       data-bs-toggle="tooltip" 
+                                       aria-label="Edit user"
+                                       title="Edit user">
+                                        <i class="fas fa-pen-square" aria-hidden="true"></i>
+                                    </a>
+                                    {% if app.user.id != user.id %}
+                                    <form action="{{ path('app_user_toggle_status', {'id': user.id}) }}" 
+                                          method="post" 
+                                          class="d-inline">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('toggle_status' ~ user.id) }}">
+                                        <button type="submit" 
+                                                class="btn-action {% if user.isActive %}btn-warning{% else %}btn-success{% endif %}" 
+                                                data-bs-toggle="tooltip" 
+                                                aria-label="{% if user.isActive %}Disable{% else %}Enable{% endif %} user"
+                                                title="{% if user.isActive %}Disable{% else %}Enable{% endif %} user"
+                                                onclick="return confirm('Are you sure you want to {% if user.isActive %}disable{% else %}enable{% endif %} this user?');">
+                                            {% if user.isActive %}
+                                                <i class="fas fa-ban" aria-hidden="true"></i>
+                                            {% else %}
+                                                <i class="fas fa-check" aria-hidden="true"></i>
+                                            {% endif %}
+                                        </button>
+                                    </form>
+                                    <form action="{{ path('app_user_reset_password', {'id': user.id}) }}" 
+                                          method="post" 
+                                          class="d-inline">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('reset_password' ~ user.id) }}">
+                                        <button type="submit" 
+                                                class="btn-action btn-info" 
+                                                data-bs-toggle="tooltip" 
+                                                aria-label="Reset password"
+                                                title="Reset password"
+                                                onclick="return confirm('Are you sure you want to reset this user\'s password?');">
+                                            <i class="fas fa-key" aria-hidden="true"></i>
+                                        </button>
+                                    </form>
+                                    <form action="{{ path('app_user_delete', {'id': user.id}) }}" 
+                                          method="post" 
+                                          class="d-inline" 
+                                          onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+                                        <button type="submit" 
+                                                class="btn-action btn-delete" 
+                                                data-bs-toggle="tooltip" 
+                                                aria-label="Delete user"
+                                                title="Delete user">
+                                            <i class="fas fa-trash" aria-hidden="true"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <div class="text-muted">
+                                    <i class="fas fa-users fa-2x mb-3"></i>
+                                    <p class="mb-0">No users found</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="order-modal-backdrop" id="orderModal" aria-hidden="true">
+    <div class="order-modal" role="dialog" aria-modal="true">
+        <div class="order-modal__header">
+            <div>
+                <h5 class="mb-1">Ordering Window</h5>
+                <small class="text-muted">Browse available events. Payment will be added later.</small>
+            </div>
+            <div class="order-chip">Ordering for: <span id="orderUserName">Select a user</span></div>
+            <button type="button" class="order-modal__close" data-order-close aria-label="Close ordering window">&times;</button>
+        </div>
+        <div class="order-modal__body">
+            <div class="alert alert-success" id="orderSummary">
+                Choose a user above, then pick an event to begin an order. The payment step will be plugged in later.
+            </div>
+
+            <div class="table-responsive admin-table-wrap">
+                <table class="admin-table datatable" id="orderEventsTable">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Date & Time</th>
+                            <th>Location</th>
+                            <th>Price</th>
+                            <th>Seat Type</th>
+                            <th>Organizer</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for event in events %}
+                        <tr>
+                            <td>{{ event.title }}</td>
+                            <td>{{ event.eventDate ? event.eventDate|date('M d, Y H:i') : 'TBD' }}</td>
+                            <td>{{ event.location ?: 'TBD' }}</td>
+                            <td>₱{{ event.price|number_format(2, '.', ',') }}</td>
+                            <td>{{ event.seatType ?: 'N/A' }}</td>
+                            <td>{{ event.organizer ? event.organizer.firstName ~ ' ' ~ event.organizer.lastName : 'N/A' }}</td>
+                            <td>
+                                <button type="button"
+                                        class="btn btn-sm btn-primary order-event-btn"
+                                        data-event-id="{{ event.id }}"
+                                        data-event-title="{{ event.title }}"
+                                        data-event-date="{{ event.eventDate ? event.eventDate|date('M d, Y H:i') : 'TBD' }}"
+                                        data-event-price="{{ event.price }}">
+                                    Start order
+                                </button>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-3 text-muted">No events available yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const orderModal = document.getElementById('orderModal');
+            const orderUserName = document.getElementById('orderUserName');
+            const orderSummary = document.getElementById('orderSummary');
+
+            if (!orderModal || !orderUserName || !orderSummary) {
+                return;
+            }
+
+            const closeButtons = orderModal.querySelectorAll('[data-order-close]');
+
+            function openOrder(name) {
+                const displayName = name && name.trim() ? name : 'selected user';
+                orderUserName.textContent = displayName;
+                orderSummary.innerHTML = `Select an event to start an order for <strong>${displayName}</strong>. Payment will be added later.`;
+                orderModal.classList.add('show');
+                orderModal.setAttribute('aria-hidden', 'false');
+            }
+
+            function closeOrder() {
+                orderModal.classList.remove('show');
+                orderModal.setAttribute('aria-hidden', 'true');
+            }
+
+            document.querySelectorAll('[data-open-order]').forEach(function(trigger) {
+                trigger.addEventListener('click', function() {
+                    openOrder(trigger.dataset.userName || 'selected user');
+                });
+            });
+
+            closeButtons.forEach(function(button) {
+                button.addEventListener('click', closeOrder);
+            });
+
+            orderModal.addEventListener('click', function(event) {
+                if (event.target === orderModal) {
+                    closeOrder();
+                }
+            });
+
+            document.querySelectorAll('.order-event-btn').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    const title = button.dataset.eventTitle || 'This event';
+                    const date = button.dataset.eventDate || 'TBD';
+                    const price = button.dataset.eventPrice;
+                    const numericPrice = parseFloat(price);
+                    const displayPrice = Number.isFinite(numericPrice) ? numericPrice.toFixed(2) : (price || 'N/A');
+                    const user = orderUserName.textContent || 'selected user';
+
+                    orderSummary.innerHTML = `<strong>${title}</strong> on <span>${date}</span> selected for <strong>${user}</strong>. Payment flow will be added later. Estimated total: ₱${displayPrice}.`;
+                });
+            });
+        });
+    </script>
+{% endblock %}
+

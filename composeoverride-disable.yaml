@@ -1,0 +1,17 @@
+# This file is used to override the default Docker Compose configuration
+# It's automatically loaded when running `docker compose up` or `docker compose down`
+# You can customize ports, environment variables, and other settings here
+
+services:
+###> doctrine/doctrine-bundle ###
+  database:
+    ports:
+      - "5432"
+###< doctrine/doctrine-bundle ###
+
+###> symfony/mailer ###
+  mailer:
+    ports:
+      - "1025"
+      - "8025"
+###< symfony/mailer ###

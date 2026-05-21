@@ -1,0 +1,219 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .admin-dashboard-page {
+            height: 100%;
+            max-height: 100%;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+            padding: 0.25rem 0 0;
+        }
+        .admin-dashboard-page .dashboard-stats { margin-bottom: 0; }
+        .chart-grid {
+            flex: 1 1 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 0.4rem;
+            overflow: hidden;
+            grid-auto-rows: minmax(0, 1fr);
+        }
+        .chart-card {
+            height: 100%;
+            min-height: 170px;
+            display: flex;
+            flex-direction: column;
+        }
+        .chart-card .card-body {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            padding: 0.45rem 0.45rem 0.35rem;
+        }
+        .chart-card canvas {
+            flex: 1 1 auto;
+            width: 100% !important;
+            height: auto !important;
+            max-height: 130px;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container mt-0 admin-dashboard-page">
+    <h1 class="mb-2">Admin Dashboard</h1>
+
+    <!-- Statistics Cards -->
+    <div class="row dashboard-stats">
+        <div class="col-md-3">
+            <div class="card text-white" style="background-color: var(--butterscotch-mousse);">
+                <div class="card-body">
+                    <h5 class="card-title">Total Users</h5>
+                    <p class="card-text" style="font-size: 2em;">{{ stats.total_users }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white" style="background-color: var(--butterscotch-dark);">
+                <div class="card-body">
+                    <h5 class="card-title">Total Events</h5>
+                    <p class="card-text" style="font-size: 2em;">{{ stats.total_events }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white" style="background-color: var(--timberwolf);">
+                <div class="card-body">
+                    <h5 class="card-title">Total Tickets</h5>
+                    <p class="card-text" style="font-size: 2em;">{{ stats.total_tickets }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white" style="background-color: var(--butterscotch-mousse);">
+                <div class="card-body">
+                    <h5 class="card-title">Total Revenue</h5>
+                    <p class="card-text" style="font-size: 2em;">₱{{ stats.total_revenue|number_format(2, '.', ',') }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="chart-grid">
+        <div class="card chart-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">User Roles Breakdown</h5>
+                        <span class="text-muted small">Admins vs Organizers vs Users</span>
+                    </div>
+                <canvas id="roleChart" height="180" aria-label="Role distribution chart"></canvas>
+            </div>
+        </div>
+        <div class="card chart-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">Top Events by Revenue</h5>
+                        <span class="text-muted small">Revenue & tickets sold</span>
+                    </div>
+                <canvas id="eventRevenueChart" height="180" aria-label="Event revenue chart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Scope overflow locking to dashboard only
+        function lockDashboard() {
+            document.documentElement.classList.add('dashboard-lock');
+            document.body.classList.add('dashboard-lock');
+            const main = document.querySelector('.admin-main');
+            if (main) main.classList.add('dashboard-locked');
+        }
+        const roleChartData = {{ roleChartData|json_encode|raw }};
+        const eventSalesChart = {{ eventSalesChart|json_encode|raw }};
+        const palette = ['#f6a90c', '#f18f01', '#5c677d', '#5dade2', '#27ae60', '#9b59b6'];
+
+        function initCharts() {
+            if (typeof Chart === 'undefined') {
+                console.warn('Chart.js failed to load; charts not rendered.');
+                return;
+            }
+
+            // Role distribution doughnut
+            const roleCtx = document.getElementById('roleChart');
+            if (roleCtx) {
+                new Chart(roleCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: roleChartData.labels,
+                        datasets: [{
+                            data: roleChartData.data,
+                            backgroundColor: palette.slice(0, roleChartData.labels.length),
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            legend: { position: 'bottom' },
+                            tooltip: { callbacks: { label: ctx => `${ctx.label}: ${ctx.formattedValue}` } }
+                        }
+                    }
+                });
+            }
+
+            // Event revenue bar
+            const eventCtx = document.getElementById('eventRevenueChart');
+            if (eventCtx) {
+                const labels = eventSalesChart.labels.length ? eventSalesChart.labels : ['No data'];
+                const revenueData = eventSalesChart.revenue.length ? eventSalesChart.revenue : [0];
+                const ticketData = eventSalesChart.tickets.length ? eventSalesChart.tickets : [0];
+
+                new Chart(eventCtx, {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [
+                            {
+                                label: 'Revenue',
+                                data: revenueData,
+                                backgroundColor: palette[0],
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'Tickets Sold',
+                                data: ticketData,
+                                backgroundColor: palette[2],
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        interaction: { mode: 'index', intersect: false },
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                position: 'left',
+                                beginAtZero: true,
+                                title: { display: true, text: 'Revenue' }
+                            },
+                            y1: {
+                                type: 'linear',
+                                position: 'right',
+                                beginAtZero: true,
+                                grid: { drawOnChartArea: false },
+                                title: { display: true, text: 'Tickets' }
+                            }
+                        },
+                        plugins: {
+                            legend: { position: 'bottom' },
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx => {
+                                        const label = ctx.dataset.label || '';
+                                        const value = ctx.formattedValue;
+                                        return label === 'Revenue' ? `${label}: ₱${value}` : `${label}: ${value}`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initCharts);
+        document.addEventListener('turbo:load', initCharts);
+    </script>
+{% endblock %}
+

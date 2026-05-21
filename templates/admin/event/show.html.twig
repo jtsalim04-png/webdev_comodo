@@ -1,0 +1,47 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Event Details{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="admin-page-header">
+        <h1>{{ event.title }}</h1>
+        <div class="admin-page-actions">
+            <a href="{{ path('app_event_index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to List
+            </a>
+            <a href="{{ path('app_event_edit', {'id': event.id}) }}" class="btn btn-primary">
+                <i class="fas fa-edit me-2"></i>Edit
+            </a>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="detail-grid">
+                <div class="detail-card full-width">
+                    <span class="detail-label">Description</span>
+                    <div class="detail-value">{{ event.description ?? 'N/A' }}</div>
+                </div>
+                <div class="detail-card">
+                    <span class="detail-label">Date &amp; Time</span>
+                    <div class="detail-value">{{ event.eventDate|date('F d, Y H:i') }}</div>
+                </div>
+                <div class="detail-card">
+                    <span class="detail-label">Location</span>
+                    <div class="detail-value">{{ event.location ?? 'N/A' }}</div>
+                </div>
+                <div class="detail-card">
+                    <span class="detail-label">Price</span>
+                    <div class="detail-value">₱{{ event.price }}</div>
+                </div>
+                <div class="detail-card">
+                    <span class="detail-label">Organizer</span>
+                    <div class="detail-value">{{ event.organizer ? event.organizer.firstName ~ ' ' ~ event.organizer.lastName : 'N/A' }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

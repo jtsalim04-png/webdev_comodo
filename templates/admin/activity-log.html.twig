@@ -1,0 +1,115 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Activity Logs{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Activity Logs</h1>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ path('admin_activity_logs') }}" class="row g-3">
+                <div class="col-md-3">
+                    <label for="user" class="form-label">User</label>
+                    <select name="user" id="user" class="form-select">
+                        <option value="">All Users</option>
+                        {% for user in users %}
+                            <option value="{{ user.id }}" {% if selectedUser == user.id %}selected{% endif %}>
+                                {{ user.firstName }} {{ user.lastName }} ({{ user.email }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="action" class="form-label">Action</label>
+                    <select name="action" id="action" class="form-select">
+                        <option value="">All Actions</option>
+                        {% for act in availableActions %}
+                            <option value="{{ act }}" {% if selectedAction == act %}selected{% endif %}>
+                                {{ act }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="start_date" class="form-label">Start Date</label>
+                    <input type="date" name="start_date" id="start_date" class="form-control" value="{{ selectedStartDate }}">
+                </div>
+                <div class="col-md-2">
+                    <label for="end_date" class="form-label">End Date</label>
+                    <input type="date" name="end_date" id="end_date" class="form-control" value="{{ selectedEndDate }}">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive admin-table-wrap">
+                <table class="admin-table datatable">
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>Action</th>
+                            <th>Target Data</th>
+                            <th>Date & Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td>
+                                {% if log.user %}
+                                    {{ log.user.id }}
+                                {% else %}
+                                    <em class="text-muted">-</em>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if log.username %}
+                                    {{ log.username }}
+                                {% elseif log.user %}
+                                    {{ log.user.email }}
+                                {% else %}
+                                    <em class="text-muted">System</em>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge {% if log.role == 'ROLE_ADMIN' %}bg-danger{% elseif log.role == 'ROLE_ORGANIZER' %}bg-info{% else %}bg-secondary{% endif %}">
+                                    {{ log.role|replace({'ROLE_': ''})|title }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge {% if log.action == 'LOGIN' or log.action == 'LOGOUT' %}bg-primary{% elseif log.action == 'CREATE' %}bg-success{% elseif log.action == 'UPDATE' %}bg-warning text-dark{% elseif log.action == 'DELETE' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                    {{ log.action }}
+                                </span>
+                            </td>
+                            <td>{{ log.targetData ?? log.description ?? 'N/A' }}</td>
+                            <td>{{ log.createdAt.format('Y-m-d H:i:s') }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                <div class="text-muted">
+                                    <i class="fas fa-history fa-2x mb-3"></i>
+                                    <p class="mb-0">No activity logs found</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

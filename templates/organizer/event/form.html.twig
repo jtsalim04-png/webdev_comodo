@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block body_class %}{% if title is defined and 'create' in title|lower %}black-bg-page{% endif %}{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1 class="h3 mb-4">{{ title }}</h1>
+    
+    <div class="card">
+        <div class="card-body">
+            {# Apply admin-style form controls #}
+            {% set titleAttr = form.title.vars.attr|merge({'class': (form.title.vars.attr.class|default('') ~ ' form-control')|trim}) %}
+            {% set descriptionAttr = form.description.vars.attr|merge({'class': (form.description.vars.attr.class|default('') ~ ' form-control')|trim}) %}
+            {% set dateAttr = form.eventDate.vars.attr|merge({'class': (form.eventDate.vars.attr.class|default('') ~ ' form-control')|trim}) %}
+            {% set locationAttr = form.location.vars.attr|merge({'class': (form.location.vars.attr.class|default('') ~ ' form-control')|trim}) %}
+            {% set priceAttr = form.price.vars.attr|merge({'class': (form.price.vars.attr.class|default('') ~ ' form-control')|trim}) %}
+
+            {{ form_start(form, {'attr': {'class': 'admin-form'}}) }}
+                <div class="form-grid">
+                    {{ form_row(form.title, {'attr': titleAttr}) }}
+                    {{ form_row(form.eventDate, {'attr': dateAttr}) }}
+                    {{ form_row(form.location, {'attr': locationAttr}) }}
+                    {{ form_row(form.price, {'attr': priceAttr}) }}
+                    {{ form_row(form.description, {'attr': descriptionAttr, 'row_attr': {'class': 'full-width'}}) }}
+                </div>
+                <div class="form-actions">
+                    <a href="{{ path('organizer_events_list') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-create">Save</button>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}
+

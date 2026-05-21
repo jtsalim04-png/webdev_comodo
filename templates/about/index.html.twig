@@ -1,0 +1,169 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}About Us{% endblock %}
+{% block body_class %}tarot-bg-page{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .about-page {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem 1rem 3rem;
+        }
+
+        .about-hero,
+        .about-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+        }
+
+        .about-hero h1 {
+            margin: 0 0 0.5rem;
+            font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+        }
+
+        .about-hero p,
+        .about-section p {
+            line-height: 1.6;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .team-card {
+            border: 1px solid #e5e5e5;
+            border-radius: 10px;
+            padding: 1rem;
+            background: #fafafa;
+        }
+
+        .team-card h3 {
+            margin: 0 0 0.35rem;
+        }
+
+        .team-role {
+            margin: 0;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .team-photo {
+            width: 96px;
+            height: 96px;
+            border-radius: 28px; /* consistent contained size */
+            overflow: hidden;
+            background: #fff;
+            flex-shrink: 0;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .team-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .team-card {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.6rem;
+        }
+
+        .team-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .team-name {
+            margin: 0;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <main class="about-page">
+        <section class="about-hero">
+            <h1>About Comodo Booking</h1>
+            <p>
+                Comodo Booking is a modern event-ticketing platform built to make booking simple, secure, and reliable for
+                both organizers and attendees. From discovering events to confirming attendance, we focus on a smooth experience
+                with clear steps and minimal friction.
+            </p>
+            <p>
+                For attendees, Comodo Booking keeps everything in one place: browse available events, view event details, purchase tickets,
+                and access your tickets anytime. For organizers, it provides practical tools to create events, manage listings, and track ticket activity.
+            </p>
+            <p>
+                Our goal is to keep the platform fast and easy to use while still supporting the essentials that matter in real events—accurate records,
+                consistent access control, and a professional interface for internal management.
+            </p>
+        </section>
+
+        <section class="about-section">
+            <h2>Our Mission</h2>
+            <p>
+                We help event communities grow by providing a trusted digital ticketing experience with clear workflows and dependable access control.
+                We believe that event operations should feel organized and calm, whether you’re buying one ticket or running multiple events.
+            </p>
+            <p>
+                Comodo Booking is designed around three principles:
+                <strong>clarity</strong> (users always know what to do next),
+                <strong>confidence</strong> (accounts, roles, and verification are handled safely),
+                and <strong>consistency</strong> (UI and data stay predictable across web and API use).
+            </p>
+        </section>
+
+        <section class="about-section">
+            <h2>Meet the Team</h2>
+            <div class="team-grid">
+                <article class="team-card">
+                    <div class="team-photo">
+                        <img alt="Jefferson Dela Cruz" src="{{ asset('AboutUs_1.JPG') }}">
+                    </div>
+                    <div class="team-meta">
+                        <h3 class="team-name">Jefferson Salim</h3>
+                        <p class="team-role">Project Lead</p>
+                    </div>
+                </article>
+                <article class="team-card">
+                    <div class="team-photo">
+                        <img alt="Jurin Castillo" src="{{ asset('AboutUs_2.jpg') }}">
+                    </div>
+                    <div class="team-meta">
+                        <h3 class="team-name">Jurin Castillo</h3>
+                        <p class="team-role">Frontend Developer</p>
+                    </div>
+                </article>
+                <article class="team-card">
+                    <div class="team-photo">
+                        <img alt="Maya Villanueva" src="{{ asset('AboutUs_3.webp') }}">
+                    </div>
+                    <div class="team-meta">
+                        <h3 class="team-name">Maya Remora</h3>
+                        <p class="team-role">Backend Developer</p>
+                    </div>
+                </article>
+                <article class="team-card">
+                    <div class="team-photo">
+                        <img alt="Cocona Akiyama" src="{{ asset('AboutUs_4.jpg') }}">
+                    </div>
+                    <div class="team-meta">
+                        <h3 class="team-name">Cocona Akiyama</h3>
+                        <p class="team-role">UI/UX Designer</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+{% endblock %}

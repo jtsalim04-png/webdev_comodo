@@ -1,0 +1,209 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Register - Comodo Booking{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .registration-hero {
+            background:
+                linear-gradient(135deg, rgba(219, 216, 204, 0.76) 0%, rgba(200, 196, 183, 0.80) 100%),
+                url("{{ asset('images/Star Tarot.png') }}") center / cover no-repeat !important;
+        }
+
+        .registration-hero .overlay {
+            background: linear-gradient(120deg, rgba(34, 34, 33, 0.10), rgba(169, 129, 82, 0.08)) !important;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="registration-hero">
+    <div class="overlay"></div>
+    <div class="container py-2 position-relative">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 d-flex justify-content-center">
+                <div class="card shadow-lg border-0 registration-card w-100" style="max-width: 760px;">
+                    <div class="card-body p-3 p-lg-3">
+                        <h3 class="mb-3 text-center">Create your account</h3>
+                        <p class="text-muted text-center mb-4">Fill in the details below to get started.</p>
+
+                        <style>
+                            .role-cards {
+                                display: grid;
+                                grid-template-columns: repeat(2, minmax(0, 1fr));
+                                gap: 0.75rem;
+                            }
+
+                            .role-card {
+                                display: flex;
+                                flex-direction: column;
+                                gap: 0.35rem;
+                                border: 1px solid rgba(0, 0, 0, 0.15);
+                                border-radius: 14px;
+                                padding: 0.85rem 0.9rem;
+                                background: #fff;
+                                cursor: pointer;
+                                transition: transform 0.12s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+                            }
+
+                            .role-card:hover {
+                                transform: translateY(-1px);
+                                box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+                            }
+
+                            .role-card input[type="radio"] {
+                                /* keep input for form submission, hide visually (without breaking layout) */
+                                opacity: 0;
+                                width: 1px;
+                                height: 1px;
+                                margin: 0;
+                            }
+
+                            .role-card.selected {
+                                border-color: var(--butterscotch-mousse, #A98152);
+                                box-shadow: 0 10px 24px rgba(169, 129, 82, 0.18);
+                            }
+
+                            .role-card__title {
+                                font-weight: 700;
+                            }
+
+                            .role-card__desc {
+                                font-size: 0.9rem;
+                                color: rgba(34, 34, 33, 0.7);
+                                line-height: 1.4;
+                            }
+
+                            @media (max-width: 640px) {
+                                .role-cards {
+                                    grid-template-columns: 1fr;
+                                }
+                            }
+                        </style>
+
+                        {{ form_start(registrationForm) }}
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        {{ form_label(registrationForm.email) }}
+                                        {{ form_widget(registrationForm.email, {'attr': {'class': 'form-control'}}) }}
+                                        {{ form_errors(registrationForm.email) }}
+                                    </div>
+                                    <div class="mb-3 password-field">
+                                        {{ form_label(registrationForm.plainPassword) }}
+                                        {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'form-control password-input'}}) }}
+                                        <ul class="password-criteria list-unstyled small mt-2">
+                                            <li class="criterion length">• Minimum of 6 characters</li>
+                                            <li class="criterion charset">• Only letters and numbers (no spaces or special characters)</li>
+                                        </ul>
+                                        {{ form_errors(registrationForm.plainPassword) }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        {{ form_label(registrationForm.firstName) }}
+                                        {{ form_widget(registrationForm.firstName, {'attr': {'class': 'form-control'}}) }}
+                                        {{ form_errors(registrationForm.firstName) }}
+                                    </div>
+                                    <div class="mb-3">
+                                        {{ form_label(registrationForm.lastName) }}
+                                        {{ form_widget(registrationForm.lastName, {'attr': {'class': 'form-control'}}) }}
+                                        {{ form_errors(registrationForm.lastName) }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3 role-options">
+                                        <div class="mb-2">
+                                            <div class="fw-bold">Choose your account type</div>
+                                            <div class="text-muted small">
+                                                Do you want to be a <strong>User</strong> or an <strong>Organizer</strong>?
+                                            </div>
+                                        </div>
+
+                                        <div class="role-cards" role="radiogroup" aria-label="Account type">
+                                            {% for child in registrationForm.role %}
+                                                <label class="role-card" tabindex="0">
+                                                    {{ form_widget(child) }}
+                                                    <span class="role-card__title">{{ child.vars.label }}</span>
+                                                    <span class="role-card__desc">
+                                                        {% if child.vars.value == 'ROLE_USER' %}
+                                                            Book events and manage your tickets.
+                                                        {% else %}
+                                                            Create events and manage tickets.
+                                                        {% endif %}
+                                                    </span>
+                                                </label>
+                                            {% endfor %}
+                                        </div>
+
+                                        {{ form_errors(registrationForm.role) }}
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="d-flex flex-column align-items-start">
+                                        <div class="form-check align-items-center mt-2 mb-2">
+                                            {{ form_widget(registrationForm.agreeTerms) }}
+                                            {{ form_label(registrationForm.agreeTerms) }}
+                                        </div>
+                                        {{ form_errors(registrationForm.agreeTerms) }}
+                                    </div>
+                                    <div class="mt-3">
+                                        <button type="submit" class="btn btn-primary btn-lg px-5 registration-submit-btn">Register</button>
+                                    </div>
+                                </div>
+                            </div>
+                        {{ form_end(registrationForm) }}
+                        <p class="text-center mt-3 mb-0">
+                            Already registered?
+                            <a href="{{ path('app_login') }}">Sign in instead</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const pwdInputs = document.querySelectorAll('.password-input input[type="password"], input[name="registration_form[plainPassword][first]"], input[name="registration_form[plainPassword][second]"]');
+    const criteria = {
+      length: document.querySelector('.password-criteria .length'),
+      charset: document.querySelector('.password-criteria .charset'),
+    };
+
+    function evaluate(value) {
+      const lengthOk = value.length >= 6;
+      const charsetOk = /^[A-Za-z0-9]*$/.test(value) && value.length > 0;
+
+      toggle(criteria.length, lengthOk);
+      toggle(criteria.charset, charsetOk);
+    }
+
+    function toggle(element, ok) {
+      if (!element) return;
+      element.classList.toggle('success', ok);
+      element.classList.toggle('error', !ok);
+    }
+
+    pwdInputs.forEach((input) => {
+      evaluate(input.value || '');
+      input.addEventListener('input', (e) => evaluate(e.target.value));
+    });
+
+    // Account type selection UI (card highlighting)
+    const syncRoleCards = () => {
+      document.querySelectorAll('.role-card').forEach((card) => {
+        const input = card.querySelector('input[type="radio"]');
+        card.classList.toggle('selected', !!input && input.checked);
+      });
+    };
+
+    document.querySelectorAll('.role-card input[type="radio"]').forEach((radio) => {
+      radio.addEventListener('change', syncRoleCards);
+    });
+    syncRoleCards();
+  });
+</script>
+{% endblock %}
+

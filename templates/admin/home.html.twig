@@ -1,0 +1,57 @@
+{# templates/admin/home.html.twig #}
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Admin • Overview{% endblock %}
+
+{# {% block page_title %}<h1 class="admin_header">Overview<h1>{% endblock %} #}
+
+{% block body %}
+  <div class="analytics-grid">
+    <a href="{{ path('app_user_index') }}" class="stat-card" aria-label="View users">
+      <h3>Total Users</h3>
+      <p class="stat-number">{{ stats.total_users }}</p>
+    </a>
+
+    <a href="{{ path('app_event_index') }}" class="stat-card" aria-label="View events">
+      <h3>Total Events</h3>
+      <p class="stat-number">{{ stats.total_events }}</p>
+    </a>
+
+    <a href="{{ path('app_ticket_index') }}" class="stat-card" aria-label="View sales & tickets">
+      <h3>Total Sales</h3>
+      <p class="stat-number">{{ stats.total_sales }}</p>
+    </a>
+  </div>
+
+  <div class="analytics-chart">
+    <h4>Sales This Month</h4>
+    <canvas id="sales-this-month-chart"></canvas>
+    <script>
+      const ctx = document.getElementById('sales-this-month-chart').getContext('2d');
+      const chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: {{ salesThisMonth|keys|json_encode }},
+          datasets: [{
+            label: 'Sales',
+            data: Object.values({{ salesThisMonth|json_encode|raw }}),
+            backgroundColor: 'rgba(224, 181, 103, 0.2)',
+            borderColor: 'rgba(224, 181, 103, 0.5)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    </script>
+  </div>
+</div>
+
+{% endblock %}

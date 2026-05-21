@@ -1,0 +1,86 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Ticket Details{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="admin-page-header">
+        <h1>Ticket #{{ ticket.id }}</h1>
+        <div class="admin-page-actions">
+            <a href="{{ path('app_ticket_index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to List
+            </a>
+            <a href="{{ path('app_ticket_edit', {'id': ticket.id}) }}" class="btn btn-primary">
+                <i class="fas fa-edit me-2"></i>Edit
+            </a>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="detail-grid">
+                <div class="detail-card">
+                    <span class="detail-label">Event</span>
+                    <div class="detail-value">{{ ticket.event ? ticket.event.title : 'N/A' }}</div>
+                </div>
+                <div class="detail-card">
+                    <span class="detail-label">Customer</span>
+                    <div class="detail-value">{{ ticket.customer ? ticket.customer.firstName ~ ' ' ~ ticket.customer.lastName : 'N/A' }}</div>
+                </div>
+                <div class="detail-card">
+                    <span class="detail-label">Price</span>
+                    <div class="detail-value">₱{{ ticket.price }}</div>
+                </div>
+                <div class="detail-card">
+                    <span class="detail-label">Status</span>
+                    <div class="detail-value">
+                        <span class="badge {% if ticket.status == 'confirmed' %}bg-success{% elseif ticket.status == 'cancelled' %}bg-danger{% else %}bg-warning{% endif %}">
+                            {{ ticket.status|title }}
+                        </span>
+                    </div>
+                </div>
+                <div class="detail-card">
+                    <span class="detail-label">Purchase Date</span>
+                    <div class="detail-value">{{ ticket.purchaseDate ? ticket.purchaseDate|date('F d, Y H:i') : 'N/A' }}</div>
+                </div>
+                <div class="detail-card full-width">
+                    <span class="detail-label">QR Code</span>
+                    <div class="detail-value">
+                        <div class="d-flex flex-column gap-2">
+                            <canvas id="ticketQrCanvas" width="200" height="200" aria-label="Ticket QR"></canvas>
+                            <small class="text-muted">Payload (stored as JSON):</small>
+                            <pre class="bg-light p-2 rounded" style="max-width: 360px; white-space: pre-wrap; word-break: break-word;">{{ ticket.qrCodePath ?? 'N/A' }}</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js" integrity="sha384-cN9Yt8u0uvlqQpfr+UjPJUVJqtePdWbVxqst/l3Y7ia8ayVcAJxwYzCFXMhlxX/g" crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const canvas = document.getElementById('ticketQrCanvas');
+            const payload = {{ ticket.qrCodePath ? ticket.qrCodePath|raw : 'null' }};
+
+            if (canvas && payload) {
+                try {
+                    const payloadString = typeof payload === 'string' ? payload : JSON.stringify(payload);
+                    new QRious({
+                        element: canvas,
+                        value: payloadString,
+                        size: 200,
+                        level: 'H',
+                    });
+                } catch (e) {
+                    console.error('Failed to render QR payload', e);
+                }
+            }
+        });
+    </script>
+{% endblock %}
+

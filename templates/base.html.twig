@@ -2,8 +2,10 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}Welcome!{% endblock %} - Comodo Booking</title>
+        <link rel="icon" type="image/png" href="{{ asset('images/comodo app logo.png') }}" />
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
         {% block stylesheets %}
         {% endblock %}
 
@@ -11,7 +13,177 @@
             {% block importmap %}{{ importmap('app') }}{% endblock %}
         {% endblock %}
     </head>
-    <body>
+    <body class="{% block body_class %}{% endblock %}">
+        <nav class="navbar">
+            <div class="nav-container">
+                <a href="{{ path('home') }}" class="nav-logo">
+                    <img src="{{ asset('images/Comodo Booking Logo.png') }}" alt="Comodo Booking" />
+                </a>
+                <button
+                    class="nav-burger"
+                    type="button"
+                    aria-label="Toggle navigation"
+                    aria-expanded="false"
+                    aria-controls="main-navigation"
+                >
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                {% set currentRoute = app.request.attributes.get('_route') %}
+                <ul class="nav-menu" id="main-navigation">
+                    {% if app.user %}
+                        <li><a href="{{ path('app_profile') }}">My Profile</a></li>
+                        {% if is_granted('ROLE_USER') and not is_granted('ROLE_ORGANIZER') and not is_granted('ROLE_ADMIN') %}
+                            <li><a href="{{ path('user_dashboard') }}">Dashboard</a></li>
+                            <li><a href="{{ path('order_list') }}">Order Tickets</a></li>
+                            <li><a href="{{ path('order_my_tickets') }}">My Tickets</a></li>
+                        {% endif %}
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <li><a href="{{ path('admin_dashboard') }}">Admin Dashboard</a></li>
+                        {% elseif is_granted('ROLE_ORGANIZER') %}
+                            <li><a href="{{ path('organizer_dashboard') }}">Organizer Dashboard</a></li>
+                        {% endif %}
+                        <li>
+                            <form method="POST" action="{{ path('app_logout') }}" style="display: inline;">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
+                                <button type="submit" class="btn-link">Logout</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        {% if currentRoute == 'home' or currentRoute == 'about_us' or currentRoute == 'contact_us' %}
+                            <li><a href="{{ path('about_us') }}">About Us</a></li>
+                            <li><a href="{{ path('contact_us') }}">Contact Us</a></li>
+                            <li><a href="{{ path('app_register') }}">Sign Up</a></li>
+                        {% else %}
+                            {% if currentRoute != 'app_login' %}
+                                <li><a href="{{ path('app_login') }}">Login</a></li>
+                            {% endif %}
+                            {% if currentRoute != 'app_register' %}
+                                <li><a href="{{ path('app_register') }}">Register</a></li>
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
         {% block body %}{% endblock %}
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var burgerButton = document.querySelector('.nav-burger');
+                var navMenu = document.querySelector('.nav-menu');
+                var navBreakpoint = window.matchMedia('(max-width: 991px)');
+
+                function closeMobileNav() {
+                    if (!burgerButton || !navMenu) {
+                        return;
+                    }
+                    burgerButton.setAttribute('aria-expanded', 'false');
+                    navMenu.classList.remove('is-open');
+                    document.body.classList.remove('mobile-nav-open');
+                }
+
+                if (burgerButton && navMenu) {
+                    burgerButton.addEventListener('click', function() {
+                        var isExpanded = burgerButton.getAttribute('aria-expanded') === 'true';
+                        burgerButton.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
+                        navMenu.classList.toggle('is-open', !isExpanded);
+                        document.body.classList.toggle('mobile-nav-open', !isExpanded);
+                    });
+
+                    navMenu.querySelectorAll('a, button').forEach(function(item) {
+                        item.addEventListener('click', function() {
+                            if (navBreakpoint.matches) {
+                                closeMobileNav();
+                            }
+                        });
+                    });
+
+                    var handleNavBreakpointChange = function(event) {
+                        if (!event.matches) {
+                            closeMobileNav();
+                        }
+                    };
+
+                    if (typeof navBreakpoint.addEventListener === 'function') {
+                        navBreakpoint.addEventListener('change', handleNavBreakpointChange);
+                    } else if (typeof navBreakpoint.addListener === 'function') {
+                        navBreakpoint.addListener(handleNavBreakpointChange);
+                    }
+                }
+
+                if (!window.jQuery || !window.jQuery.fn.DataTable) {
+                    console.warn('DataTables failed to load');
+                    return;
+                }
+
+                function adjustAllTables() {
+                    if (!(window.jQuery && window.jQuery.fn && window.jQuery.fn.DataTable)) {
+                        return;
+                    }
+
+                    document.querySelectorAll('table.datatable').forEach(function(table) {
+                        if (window.jQuery.fn.DataTable.isDataTable(table)) {
+                            try {
+                                window.jQuery(table).DataTable().columns.adjust();
+                            } catch (e) {
+                                // no-op
+                            }
+                        }
+                    });
+                }
+
+                document.querySelectorAll('table.datatable').forEach(function(table) {
+                    var $table = window.jQuery(table);
+                    if (!$table.hasClass('dataTable')) {
+                        $table.DataTable({
+                            pageLength: 10,
+                            order: [],
+                            responsive: false,
+                            autoWidth: false,
+                            scrollX: true,
+                            scrollCollapse: true,
+                            width: '100%',
+                            language: {
+                                search: 'Search:'
+                            },
+                            initComplete: function() {
+                                window.setTimeout(adjustAllTables, 80);
+                                window.setTimeout(adjustAllTables, 260);
+                            }
+                        });
+                    }
+                });
+
+                window.setTimeout(adjustAllTables, 180);
+                window.setTimeout(adjustAllTables, 500);
+                window.addEventListener('load', function() {
+                    window.setTimeout(adjustAllTables, 120);
+                    window.setTimeout(adjustAllTables, 420);
+                });
+                document.addEventListener('turbo:load', function() {
+                    window.setTimeout(adjustAllTables, 220);
+                    window.setTimeout(adjustAllTables, 560);
+                });
+                document.addEventListener('fullscreenchange', function() {
+                    window.setTimeout(adjustAllTables, 220);
+                });
+                if (document.fonts && typeof document.fonts.ready?.then === 'function') {
+                    document.fonts.ready.then(function() {
+                        window.setTimeout(adjustAllTables, 120);
+                        window.setTimeout(adjustAllTables, 360);
+                    });
+                }
+                var resizeTimer = null;
+                window.addEventListener('resize', function() {
+                    if (resizeTimer) {
+                        window.clearTimeout(resizeTimer);
+                    }
+                    resizeTimer = window.setTimeout(adjustAllTables, 220);
+                });
+            });
+        </script>
     </body>
 </html>

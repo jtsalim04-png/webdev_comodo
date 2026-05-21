@@ -1,0 +1,80 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Contact Us{% endblock %}
+{% block body_class %}tarot-bg-page{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .contact-page {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem 1rem 3rem;
+        }
+
+        .contact-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+        }
+
+        .contact-card h1 {
+            margin-top: 0;
+            font-size: clamp(1.75rem, 3.5vw, 2.4rem);
+        }
+
+        .contact-card p {
+            line-height: 1.6;
+            color: #444;
+        }
+
+        .form-wrap {
+            margin-top: 1rem;
+            border: 1px solid #e7e7e7;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #fafafa;
+        }
+
+        .form-wrap iframe {
+            display: block;
+            width: 100%;
+            min-height: 520px;
+            height: clamp(520px, 80vh, 980px);
+            border: 0;
+        }
+
+        .form-fallback {
+            margin-top: 0.9rem;
+            font-size: 0.95rem;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <main class="contact-page">
+        <section class="contact-card">
+            <h1>Contact Us</h1>
+            <p>
+                Send us your questions and feedback through our official Google Form.
+                After submitting, Google Forms will show your submission confirmation.
+            </p>
+
+            <div class="form-wrap">
+                <iframe
+                    src="https://docs.google.com/forms/d/e/1FAIpQLScQVBfAh4P2ffFtX6GIu4ms5fQ4XyKzXfcar4F-QApc6zBSMw/viewform?embedded=true"
+                    title="Comodo Contact Form"
+                    loading="lazy">
+                </iframe>
+            </div>
+
+            <p class="form-fallback">
+                If the form does not load, open it directly:
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLScQVBfAh4P2ffFtX6GIu4ms5fQ4XyKzXfcar4F-QApc6zBSMw/viewform?usp=publish-editor" target="_blank" rel="noopener noreferrer">
+                    Comodo Contact Tracing Form
+                </a>
+            </p>
+        </section>
+    </main>
+{% endblock %}

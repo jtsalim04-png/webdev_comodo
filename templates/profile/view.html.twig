@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Profile{% endblock %}
+{% block body_class %}black-bg-page{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">{{ message }}</div>
+    {% endfor %}
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger">{{ message }}</div>
+    {% endfor %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">My Profile</h2>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5>Account Information</h5>
+                        <hr>
+                        <div class="row mb-3">
+                            <div class="col-sm-3"><strong>Name:</strong></div>
+                            <div class="col-sm-9">{{ user.firstName }} {{ user.lastName }}</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-3"><strong>Email:</strong></div>
+                            <div class="col-sm-9">{{ user.email }}</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-3"><strong>Role:</strong></div>
+                            <div class="col-sm-9">
+                                <span class="badge {% if user.role == 'ROLE_ADMIN' %}bg-danger{% elseif user.role == 'ROLE_ORGANIZER' %}bg-info{% else %}bg-secondary{% endif %}">
+                                    {{ user.role|replace({'ROLE_': ''})|title }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-3"><strong>Account Created:</strong></div>
+                            <div class="col-sm-9">{{ user.createdAt ? user.createdAt|date('F d, Y') : 'N/A' }}</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-sm-3"><strong>Status:</strong></div>
+                            <div class="col-sm-9">
+                                <span class="badge {% if user.isActive %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ user.isActive ? 'Active' : 'Inactive' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a href="{{ path('app_profile_change_password') }}" class="btn btn-primary">
+                            Change Password
+                        </a>
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <a href="{{ path('admin_dashboard') }}" class="btn btn-secondary">
+                                Admin Dashboard
+                            </a>
+                        {% elseif is_granted('ROLE_ORGANIZER') %}
+                            <a href="{{ path('organizer_dashboard') }}" class="btn btn-secondary">
+                                Organizer Dashboard
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

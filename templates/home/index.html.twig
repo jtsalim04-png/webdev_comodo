@@ -1,0 +1,40 @@
+{# templates/home/index.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Comodo Booking | Digital Event Ticketing{% endblock %}
+
+{% block body %}
+<section class="hero">
+  <h1>
+    {% if app.user and app.user.firstName %}
+      Hello, {{ app.user.firstName }}!
+    {% else %}
+      Welcome to Comodo Booking
+    {% endif %}
+  </h1>
+  <p>
+    Discover a seamless and secure way to experience events.  
+    From ticket purchase to QR-based entry, Comodo Booking brings convenience and mystique —  
+    turning every event into a ritual worth attending.
+  </p>
+  <a href="#" class="cta-button">Get Started</a>
+</section>
+
+<section class="features">
+  <div class="feature-card">
+    <h2>🎟 Effortless Ticketing</h2>
+    <p>Organizers can easily create events, set ticket prices, and track real-time sales — all in one place.</p>
+  </div>
+
+  <div class="feature-card">
+    <h2>⟡ QR Code Check-In</h2>
+    <p>Attendees receive secure QR codes for instant validation at the venue, ensuring smooth access.</p>
+  </div>
+
+  <div class="feature-card">
+    <h2>💫 Earn Rewards</h2>
+    <p>Daily check-ins and purchases earn points redeemable for discount vouchers and event perks.</p>
+  </div>
+</section>
+{% endblock %}
+
