@@ -28,6 +28,7 @@
                                 <th>Price</th>
                                 <th>Status</th>
                                 <th>Purchased</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -44,6 +45,13 @@
                                         </span>
                                     </td>
                                     <td>{{ ticket.purchaseDate ? ticket.purchaseDate|date('M d, Y H:i') : 'N/A' }}</td>
+                                    <td>
+                                        {% if event %}
+                                            <a href="{{ path('order_show', {'id': event.id}) }}" class="btn btn-primary btn-sm">View Ticket</a>
+                                        {% else %}
+                                            <button class="btn btn-secondary btn-sm" disabled>View Ticket</button>
+                                        {% endif %}
+                                    </td>
                                 </tr>
                             {% endfor %}
                         </tbody>
