@@ -48,12 +48,22 @@ class OrderController extends AbstractController
     }
 
     #[Route('/{id}', name: 'order_show', methods: ['GET'])]
-    public function show(Event $event): Response
+    public function show(Event $event, TicketRepository $ticketRepository): Response
     {
         $this->denyAccessUnlessGranted('ROLE_USER');
 
+        $ticket = null;
+        $user = $this->getUser();
+        if ($user) {
+            $ticket = $ticketRepository->findOneBy(
+                ['event' => $event, 'customer' => $user],
+                ['purchaseDate' => 'DESC']
+            );
+        }
+
         return $this->render('order/show.html.twig', [
             'event' => $event,
+            'ticket' => $ticket,
         ]);
     }
 

@@ -53,9 +53,8 @@ class RegistrationController extends AbstractController
             } else {
                 // encode the plain password
                 $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
-                // Role is set from the form selection (User or Organizer only)
-                $role = $form->get('role')->getData() ?? 'ROLE_USER';
-                $user->setRole($role);
+                // Email registration is always a standard user account.
+                $user->setRole('ROLE_USER');
                 $verificationToken = $emailVerificationService->generateVerificationToken();
                 $user->setVerificationToken($verificationToken);
                 $user->setIsVerified(false);

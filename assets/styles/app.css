@@ -398,6 +398,133 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--tuatara);
 }
 
+.event-card__image {
+  display: block;
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  border-radius: 0.75rem;
+  margin-bottom: 0.9rem;
+}
+
+.event-card__excerpt {
+  margin: 0 0 0.75rem 0;
+  color: rgba(34, 34, 33, 0.8);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  min-height: 3.3rem;
+}
+
+.event-detail__image {
+  display: block;
+  width: 100%;
+  max-width: 640px;
+  height: auto;
+  object-fit: cover;
+  border-radius: 1rem;
+  margin: 0 auto;
+}
+
+.ticket-preview-card {
+  background: linear-gradient(180deg, rgba(255, 250, 241, 0.98), rgba(248, 239, 224, 0.96));
+  border: 1px solid rgba(90, 70, 50, 0.14);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  box-shadow: 0 16px 40px rgba(43, 29, 11, 0.08);
+}
+
+.ticket-preview-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.35rem;
+}
+
+.ticket-preview-card__label {
+  display: inline-block;
+  color: #73582e;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.ticket-preview-card__title {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #2f2518;
+}
+
+.ticket-preview-card__actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.ticket-preview-card__body {
+  display: grid;
+  grid-template-columns: 280px 1fr 240px;
+  gap: 1rem;
+  align-items: start;
+}
+
+.ticket-preview-card__image-wrap,
+.ticket-preview-card__qr {
+  background: #fff;
+  border: 1px solid rgba(90, 70, 50, 0.12);
+  border-radius: 1rem;
+  padding: 0.75rem;
+}
+
+.ticket-preview-card__image {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 0.9rem;
+  object-fit: cover;
+}
+
+.ticket-preview-card__details {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.ticket-preview-card__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1rem;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(90, 70, 50, 0.1);
+  border-radius: 0.95rem;
+}
+
+.ticket-preview-card__field {
+  color: #6d553d;
+  font-size: 0.9rem;
+}
+
+.ticket-preview-card__value {
+  color: #221f1c;
+  font-weight: 700;
+}
+
+.ticket-preview-card__qr img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 1rem;
+}
+
+@media (max-width: 991px) {
+  .ticket-preview-card__body {
+    grid-template-columns: 1fr;
+  }
+}
+
 .event-card__meta-row {
   display: flex;
   justify-content: space-between;
@@ -438,6 +565,89 @@ h1, h2, h3, h4, h5, h6 {
   background-color: var(--butterscotch-dark);
   transform: translateY(-1px);
   color: var(--timberwolf);
+}
+
+/* ================================
+   Mobile / Responsive Adjustments
+   ================================ */
+@media (max-width: 767px) {
+  .container {
+    padding: 0 0.75rem;
+  }
+
+  /* Make the carousel stack vertically on small screens */
+  .events-carousel__track {
+    display: grid;
+    grid-auto-flow: row;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    overflow-x: visible;
+    padding-bottom: 0;
+  }
+
+  .events-carousel__btn {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+  }
+
+  .event-card {
+    padding: 0.9rem;
+    min-height: auto;
+  }
+
+  .event-card__image {
+    max-height: 140px;
+    margin-bottom: 0.6rem;
+  }
+
+  .event-card__title {
+    font-size: 1.1rem;
+    margin-bottom: 0.45rem;
+  }
+
+  .event-card__excerpt {
+    min-height: 2.5rem;
+    font-size: 0.95rem;
+  }
+
+  .event-card__primary {
+    display: block;
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Make profile layout stack cleanly */
+  .profile-status-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-avatar {
+    width: 88px;
+    height: 88px;
+    line-height: 88px;
+    font-size: 2.25rem;
+  }
+
+  /* Make form buttons full-width on small screens */
+  .btn-block {
+    display: block;
+    width: 100%;
+  }
+
+  /* Tighter spacing for cards */
+  .card {
+    margin-bottom: 1.25rem;
+  }
+
+  /* Reduce large paddings on mobile */
+  .mt-5 { margin-top: 1.5rem; }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .events-carousel__track {
+    grid-auto-columns: minmax(320px, 1fr);
+  }
 }
 
 .events-carousel__empty {
@@ -701,6 +911,76 @@ h1, h2, h3, h4, h5, h6 {
 
 .card-body {
   padding: 1.5rem;
+}
+
+.profile-card {
+  overflow: hidden;
+}
+
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  line-height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(166, 108, 48, 0.15), rgba(166, 108, 48, 0.35));
+  color: var(--tuatara);
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0 auto 1rem auto;
+}
+
+.profile-name {
+  margin: 0;
+  font-size: 1.75rem;
+  color: var(--tuatara);
+}
+
+.profile-email {
+  margin: 0.5rem 0 1rem;
+  color: rgba(34, 34, 33, 0.8);
+}
+
+.profile-badges {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.profile-status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.profile-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid rgba(34, 34, 33, 0.08);
+}
+
+.profile-detail-row:last-child {
+  border-bottom: none;
+}
+
+.profile-detail-row span {
+  color: rgba(34, 34, 33, 0.7);
+}
+
+.profile-actions {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 767px) {
+  .profile-status-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .admin-table-wrap {

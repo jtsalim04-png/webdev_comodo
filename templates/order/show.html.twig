@@ -18,8 +18,63 @@
         <div class="alert alert-danger">{{ message }}</div>
     {% endfor %}
 
+    {% if ticket %}
+        <div class="ticket-preview-card mb-4" id="ticketPreviewCard">
+            <div class="ticket-preview-card__header">
+                <div>
+                    <div class="ticket-preview-card__label">Ticket confirmed</div>
+                    <h2 class="ticket-preview-card__title">{{ event.title }}</h2>
+                </div>
+                <div class="ticket-preview-card__actions">
+                    <button type="button" class="btn btn-create" id="downloadTicketButton">Download Ticket</button>
+                    <button type="button" class="btn btn-secondary" id="printTicketButton">Print Ticket</button>
+                </div>
+            </div>
+
+            <div class="ticket-preview-card__body">
+                <div class="ticket-preview-card__image-wrap">
+                    <img src="{{ absolute_url(asset('images/event-default.svg')) }}" alt="{{ event.title }}" class="ticket-preview-card__image">
+                </div>
+                <div class="ticket-preview-card__details">
+                    <div class="ticket-preview-card__row">
+                        <span class="ticket-preview-card__field">Ticket #</span>
+                        <span class="ticket-preview-card__value">{{ ticket.id }}</span>
+                    </div>
+                    <div class="ticket-preview-card__row">
+                        <span class="ticket-preview-card__field">Name</span>
+                        <span class="ticket-preview-card__value">{{ app.user.firstName ~ ' ' ~ app.user.lastName }}</span>
+                    </div>
+                    <div class="ticket-preview-card__row">
+                        <span class="ticket-preview-card__field">Date & Time</span>
+                        <span class="ticket-preview-card__value">{{ event.eventDate ? event.eventDate|date('F d, Y H:i') : 'TBD' }}</span>
+                    </div>
+                    <div class="ticket-preview-card__row">
+                        <span class="ticket-preview-card__field">Location</span>
+                        <span class="ticket-preview-card__value">{{ event.location ?: 'TBD' }}</span>
+                    </div>
+                    <div class="ticket-preview-card__row">
+                        <span class="ticket-preview-card__field">Price</span>
+                        <span class="ticket-preview-card__value">₱{{ ticket.price|number_format(2, '.', ',') }}</span>
+                    </div>
+                    {% if event.seatType %}
+                        <div class="ticket-preview-card__row">
+                            <span class="ticket-preview-card__field">Seat</span>
+                            <span class="ticket-preview-card__value">{{ event.seatType }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="ticket-preview-card__qr">
+                    <img src="https://chart.googleapis.com/chart?cht=qr&chs=220x220&chl={{ ticket.qrCodePath ? ticket.qrCodePath|url_encode : ('ticket:' ~ ticket.id ~ ':event:' ~ event.id)|url_encode }}" alt="Ticket QR code">
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
     <div class="card">
         <div class="card-body">
+            <div class="mb-4 text-center">
+                <img src="{{ asset('images/event-default.svg') }}" alt="{{ event.title }}" class="event-detail__image">
+            </div>
             <div class="row mb-3">
                 <div class="col-sm-3"><strong>Date & Time:</strong></div>
                 <div class="col-sm-9">{{ event.eventDate ? event.eventDate|date('F d, Y H:i') : 'TBD' }}</div>
@@ -52,5 +107,100 @@
         </div>
     </div>
 </div>
+
+{% if ticket %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const downloadButton = document.getElementById('downloadTicketButton');
+            const printButton = document.getElementById('printTicketButton');
+            if (!downloadButton || !printButton) {
+                return;
+            }
+
+            const ticketData = {
+                id: {{ ticket.id }},
+                eventTitle: {{ event.title|json_encode|raw }},
+                eventDate: {{ (event.eventDate ? event.eventDate|date('F d, Y H:i') : 'TBD')|json_encode|raw }},
+                location: {{ (event.location ?: 'TBD')|json_encode|raw }},
+                price: {{ ('₱' ~ ticket.price|number_format(2, '.', ','))|json_encode|raw }},
+                seatType: {{ (event.seatType ?: 'General Admission')|json_encode|raw }},
+                buyerName: {{ ((app.user.firstName ?: '') ~ ' ' ~ (app.user.lastName ?: ''))|trim|default('Valued guest')|json_encode|raw }},
+                ticketId: {{ ticket.id }},
+                purchaseDate: {{ (ticket.purchaseDate ? ticket.purchaseDate|date('F d, Y H:i') : 'N/A')|json_encode|raw }},
+                qrText: {{ (ticket.qrCodePath ?: 'ticket:' ~ ticket.id ~ ':event:' ~ event.id)|json_encode|raw }},
+                imageUrl: {{ absolute_url(asset('images/event-default.svg'))|json_encode|raw }}
+            };
+
+            function buildTicketHtml(data) {
+                return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Comodo Booking Ticket #${data.ticketId}</title>
+<style>
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f3f1ec;color:#222}
+.ticket-wrap{max-width:900px;margin:0 auto;padding:30px;background:#ffffff;border:1px solid #ddd;box-shadow:0 20px 60px rgba(0,0,0,0.08)}
+.ticket-hero{display:flex;flex-wrap:wrap;gap:20px;align-items:center}
+.ticket-hero img{width:100%;max-width:300px;border-radius:16px;object-fit:cover}
+.ticket-info{flex:1;min-width:280px}
+.ticket-info h1{margin:0 0 12px;font-size:2rem;letter-spacing:-0.02em}
+.ticket-info p{margin:0 10px 8px;font-size:0.96rem;color:#4d4d4d}
+.ticket-meta{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:24px 0}
+.ticket-meta div{padding:16px;background:#faf5e6;border:1px solid rgba(34,34,33,0.08);border-radius:14px}
+.ticket-meta strong{display:block;margin-bottom:8px;color:#66502d;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.08em}
+.qr-wrap{text-align:center;margin-top:20px}
+.qr-wrap img{width:220px;height:220px;border-radius:16px;border:1px solid #ddd}
+.footer{margin-top:28px;font-size:0.92rem;color:#666;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+</style>
+</head>
+<body>
+<div class="ticket-wrap">
+<div class="ticket-hero">
+<img src="${data.imageUrl}" alt="${data.eventTitle} image">
+<div class="ticket-info">
+<h1>${data.eventTitle}</h1>
+<p><strong>Ticket</strong> #${data.ticketId}</p>
+<p><strong>Buyer</strong> ${data.buyerName}</p>
+<p>${data.purchaseDate}</p>
+</div>
+</div>
+<div class="ticket-meta">
+<div><strong>Date & Time</strong>${data.eventDate}</div>
+<div><strong>Location</strong>${data.location}</div>
+<div><strong>Seat</strong>${data.seatType}</div>
+<div><strong>Price</strong>${data.price}</div>
+</div>
+<div class="qr-wrap">
+<img src="https://chart.googleapis.com/chart?cht=qr&chs=300x300&chl=${encodeURIComponent(data.qrText)}" alt="QR Code">
+<p>Scan to verify your ticket at the event entrance.</p>
+</div>
+<div class="footer">
+<div>Powered by Comodo Booking</div>
+<div>Ticket ID: ${data.ticketId}</div>
+</div>
+</div>
+</body>
+</html>`;
+            }
+
+            downloadButton.addEventListener('click', function() {
+                const html = buildTicketHtml(ticketData);
+                const blob = new Blob([html], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `comodo-ticket-${ticketData.ticketId}.html`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                URL.revokeObjectURL(url);
+            });
+
+            printButton.addEventListener('click', function() {
+                window.print();
+            });
+        });
+    </script>
+{% endif %}
 {% endblock %}
 

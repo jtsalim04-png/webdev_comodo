@@ -5,7 +5,6 @@ namespace App\Form;
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
@@ -59,22 +58,6 @@ class RegistrationFormType extends AbstractType
                         'max' => 4096,
                     ]),
                 ],
-            ])
-            ->add('role', ChoiceType::class, [
-                'label' => 'Account Type',
-                'choices' => [
-                    'User' => 'ROLE_USER',
-                    'Organizer' => 'ROLE_ORGANIZER',
-                ],
-                'expanded' => true,
-                'multiple' => false,
-                'required' => true,
-                'choice_attr' => [
-                    'User' => ['class' => 'form-check-input'],
-                    'Organizer' => ['class' => 'form-check-input'],
-                ],
-                'label_attr' => ['class' => 'form-check-label ms-2'],
-                'row_attr' => ['class' => 'mb-3'],
             ])
             ->add('agreeTerms', CheckboxType::class, [
                 'label' => 'I agree to the terms and conditions',

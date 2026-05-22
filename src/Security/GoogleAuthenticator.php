@@ -71,8 +71,8 @@ class GoogleAuthenticator extends OAuth2Authenticator
 
                 $user->setFirstName($firstName);
                 $user->setLastName($lastName);
-                // New Google users must choose their account type after first login.
-                $user->setRole('ROLE_UNSELECTED');
+                // New Google sign-ups are organizers only.
+                $user->setRole('ROLE_ORGANIZER');
                 $user->setIsVerified(true);
                 $user->setVerificationToken(null);
                 $user->setPassword($this->passwordHasher->hashPassword($user, bin2hex(random_bytes(32))));
@@ -91,12 +91,10 @@ class GoogleAuthenticator extends OAuth2Authenticator
         $user = $token->getUser();
         $roles = $user && method_exists($user, 'getRoles') ? $user->getRoles() : [];
 
-        // Only NEW Google users should see the role choice screen.
-        if (in_array('ROLE_UNSELECTED', $roles, true)) {
-            return new RedirectResponse($this->urlGenerator->generate('choose_role'));
+        if (in_array('ROLE_ADMIN', $roles, true)) {
+            return new RedirectResponse($this->urlGenerator->generate('admin_dashboard'));
         }
 
-        // Existing users go straight to their dashboard.
         if (in_array('ROLE_ORGANIZER', $roles, true)) {
             return new RedirectResponse($this->urlGenerator->generate('organizer_dashboard'));
         }
