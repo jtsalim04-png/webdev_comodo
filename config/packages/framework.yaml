@@ -18,6 +18,11 @@ framework:
     #esi: true
     #fragments: true
 
+when@prod:
+    framework:
+        router:
+            default_uri: '%env(default::string:DEFAULT_URI)%'
+
 when@test:
     framework:
         test: true

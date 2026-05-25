@@ -67,7 +67,11 @@ class RegistrationController extends AbstractController
                     ['token' => $verificationToken],
                     UrlGeneratorInterface::ABSOLUTE_URL
                 );
-                $emailVerificationService->sendVerificationEmail($user, $verificationUrl);
+                try {
+                    $emailVerificationService->sendVerificationEmail($user, $verificationUrl);
+                } catch (\Throwable $e) {
+                    error_log('[Registration] Verification email failed: '.$e->getMessage());
+                }
                 $request->getSession()->set('pending_verification_email', (string) $user->getEmail());
                 $request->getSession()->set('pending_verification_sent_at', (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM));
                 $this->addFlash('success', 'Registration successful! Please check your email to verify your account.');

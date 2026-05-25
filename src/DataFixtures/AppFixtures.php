@@ -3,15 +3,21 @@
 namespace App\DataFixtures;
 
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 use Doctrine\Persistence\ObjectManager;
 
-class AppFixtures extends Fixture
+/**
+ * Optional group entry point. Default: doctrine:fixtures:load loads all fixtures in this folder.
+ */
+class AppFixtures extends Fixture implements FixtureGroupInterface
 {
     public function load(ObjectManager $manager): void
     {
-        // $product = new Product();
-        // $manager->persist($product);
+        // Entity data lives in UserFixture, EventFixture, TicketFixture, ActivityLogFixture.
+    }
 
-        $manager->flush();
+    public static function getGroups(): array
+    {
+        return ['app'];
     }
 }

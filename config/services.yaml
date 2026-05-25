@@ -4,6 +4,7 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    app.url: '%env(default::string:APP_URL)%'
 
 services:
     # default configuration for services in *this* file
@@ -15,6 +16,14 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
+
+    App\Service\AppUrlService:
+        arguments:
+            $appUrl: '%app.url%'
+
+    App\Command\ExportDatabaseFixturesCommand:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
 
     App\EventSubscriber\EntityUpdateSubscriber:
         tags:
