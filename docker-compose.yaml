@@ -10,14 +10,14 @@ services:
     container_name: comodowebsite-app
     restart: unless-stopped
     ports:
-      - "${APP_PORT:-8000}:8080"
+      - "${APP_PORT}:8080"
     environment:
-      APP_ENV: ${APP_ENV:-dev}
-      APP_DEBUG: ${APP_DEBUG:-1}
-      APP_URL: ${APP_URL:-http://127.0.0.1:8000}
-      DEFAULT_URI: ${APP_URL:-http://127.0.0.1:8000}
+      APP_ENV: ${APP_ENV}
+      APP_DEBUG: ${APP_DEBUG}
+      APP_URL: ${APP_URL}
+      DEFAULT_URI: ${APP_URL}
       PORT: 8080
-      DATABASE_URL: mysql://${MYSQL_USER:-Comodo_user}:${MYSQL_PASSWORD:-Comodo123}@mysql:3306/${MYSQL_DATABASE:-ComodoDBNew}?serverVersion=8.0.32&charset=utf8mb4
+      DATABASE_URL: mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE}?serverVersion=8.0.32&charset=utf8mb4
     env_file:
       - path: .env
         required: true
@@ -41,12 +41,12 @@ services:
     container_name: comodobookingnew-mysql-1
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-Comodo_Root_pass}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-ComodoDBNew}
-      MYSQL_USER: ${MYSQL_USER:-Comodo_user}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-Comodo123}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
-      - "${MYSQL_PORT:-3308}:3306"
+      - "${MYSQL_PORT}:3306"
     volumes:
       - db_data:/var/lib/mysql
     networks:
@@ -62,7 +62,7 @@ services:
       PMA_HOST: mysql
       PMA_PORT: 3306
     ports:
-      - "${PMA_PORT:-8081}:80"
+      - "${PMA_PORT}:80"
     networks:
       - comodobookingnew
 
