@@ -16,7 +16,7 @@ class UserFixture extends Fixture
         $admin->setFirstName('Admin');
         $admin->setLastName('User');
         $admin->setRole('ROLE_ADMIN');  // Changed from setRoles to setRole
-        $admin->setPassword('admin123'); // Will hash later
+        $admin->setPassword('$2y$13$bj58WZ0W/ZNd4dmX8y/xge4RGXOSAJVbbbnhQKaLEnqp2FPaO0jD.'); // Will hash later
         $admin->setIsActive(true);
         $admin->setCreatedAt(new \DateTimeImmutable('2026-05-25 14:33:00'));
         $manager->persist($admin);
@@ -29,7 +29,7 @@ class UserFixture extends Fixture
         $user->setFirstName('User');
         $user->setLastName('Test');
         $user->setRole('ROLE_USER');  // Changed from setRoles to setRole
-        $user->setPassword('user123'); // Will hash later
+        $user->setPassword('$2y$13$oa8lV0yUav9yAw9o6ul8Vehtzx3LFS1ZVVpUJ4k3R0JLmfvHgGwpq'); // Will hash later
         $user->setIsActive(true);
         $user->setCreatedAt(new \DateTimeImmutable('2026-05-25 14:33:01'));
         $manager->persist($user);
@@ -42,7 +42,7 @@ class UserFixture extends Fixture
         $organizer->setFirstName('Event');
         $organizer->setLastName('Organizer');
         $organizer->setRole('ROLE_ORGANIZER');  // Changed from setRoles to setRole
-        $organizer->setPassword('user123'); // Will hash later
+        $organizer->setPassword('$2y$13$oa8lV0yUav9yAw9o6ul8Vehtzx3LFS1ZVVpUJ4k3R0JLmfvHgGwpq'); // Will hash later
         $organizer->setIsActive(true);
         $organizer->setCreatedAt(new \DateTimeImmutable('2026-05-25 14:33:02'));
         $manager->persist($organizer);
