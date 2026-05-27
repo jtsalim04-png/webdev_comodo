@@ -30,7 +30,7 @@ RUN if [ "$INSTALL_DEV_DEPS" = "1" ]; then \
     fi \
     && composer dump-autoload --optimize --classmap-authoritative \
     && test -f vendor/autoload_runtime.php \
-    && php bin/console asset-map:compile --no-interaction 2>/dev/null || true
+    && (php bin/console asset-map:compile --no-interaction 2>/dev/null || true)
 
 RUN mkdir -p var/cache var/log public/uploads config/jwt \
     && chown -R www-data:www-data var public/uploads config/jwt
