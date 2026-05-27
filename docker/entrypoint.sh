@@ -48,6 +48,23 @@ console() {
     fi
 }
 
+# Ensure frontend importmap vendor assets exist in the running container.
+ensure_frontend_assets() {
+    if [ -f "assets/vendor/@hotwired/stimulus.js" ] || [ -f "assets/vendor/@hotwired/stimulus" ]; then
+        return 0
+    fi
+
+    echo "Importmap vendor assets missing. Running importmap:install..."
+    if ! console importmap:install --no-interaction; then
+        echo "ERROR: importmap:install failed; frontend assets are required."
+        return 1
+    fi
+}
+
+if ! ensure_frontend_assets; then
+    exit 1
+fi
+
 bootstrap_background() {
     (
         if [ -n "${DATABASE_URL:-}" ]; then
