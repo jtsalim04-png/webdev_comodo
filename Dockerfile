@@ -2,6 +2,7 @@
 FROM php:8.3-fpm-bookworm
 
 ARG INSTALL_DEV_DEPS=0
+ENV COMPOSER_ALLOW_SUPERUSER=1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git unzip curl nginx \
@@ -24,9 +25,9 @@ RUN if [ "$INSTALL_DEV_DEPS" = "1" ]; then \
 COPY . .
 
 RUN if [ "$INSTALL_DEV_DEPS" = "1" ]; then \
-        composer install --no-interaction --prefer-dist; \
+        composer install --no-interaction --prefer-dist --no-scripts; \
     else \
-        composer install --no-interaction --prefer-dist --no-dev --optimize-autoloader; \
+        composer install --no-interaction --prefer-dist --no-dev --no-scripts --optimize-autoloader; \
     fi \
     && composer dump-autoload --optimize --classmap-authoritative \
     && test -f vendor/autoload_runtime.php \
