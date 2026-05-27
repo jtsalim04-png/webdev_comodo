@@ -76,6 +76,5 @@ $this->addReference('activity_log_6',$log);
 
     public function getDependencies(): array
     {
-        return [\App\DataFixtures\UserFixture::class];
-    }
+$event->setOrganizer($this->getReference('user_3'));    }
 }

@@ -4,52 +4,42 @@ namespace App\DataFixtures;
 
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
-use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
-/**
- * Auto-generated from database (3 row(s)) on 2026-05-25T14:35:33+00:00.
- * Regenerate: php bin/console app:fixtures:export-from-database
- */
 class UserFixture extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-$user = new User();
-$user->setEmail('admin@gmail.com');
-$user->setRole('ROLE_ADMIN');
-$user->setFirstName('Admin');
-$user->setLastName('User');
-$user->setPassword('$2y$13$zWVHwMtXGFY5H9zkLJ1MKOEaNch6HsNiUCZt8Gpp.lbSOCrk.m5HK');
-$user->setCreatedAt(new \DateTimeImmutable('2026-05-25 14:33:00'));
-$user->setIsActive((bool) 1);
-$user->setIsVerified((bool) 1);
-$user->setVerificationToken(null);
-$manager->persist($user);
-$this->addReference('user_1', $user);  $user = new User();
-$user->setEmail('user123@gmail.com');
-$user->setRole('ROLE_USER');
-$user->setFirstName('User');
-$user->setLastName('Test');
-$user->setPassword('$2y$13$BJEPIKHggVTs2j3JPMNDNuqvGoWIYQ2chC63WRWfv2mLOKwS44eIW');
-$user->setCreatedAt(new \DateTimeImmutable('2026-05-25 14:33:01'));
-$user->setIsActive((bool) 1);
-$user->setIsVerified((bool) 1);
-$user->setVerificationToken(null);
-$manager->persist($user);
-$this->addReference('user_2', $user);  $user = new User();
-$user->setEmail('organizer1@gmail.com');
-$user->setRole('ROLE_ORGANIZER');
-$user->setFirstName('Event');
-$user->setLastName('Organizer');
-$user->setPassword('$2y$13$5nEzrtviri9KAzsd0wKs4.yNDYk6lEwdwAmVFls6fwJjlBCaQkrF2');
-$user->setCreatedAt(new \DateTimeImmutable('2026-05-25 14:33:02'));
-$user->setIsActive((bool) 1);
-$user->setIsVerified((bool) 1);
-$user->setVerificationToken(null);
-$manager->persist($user);
-$this->addReference('user_3', $user);
+        // User 1: Admin User
+        $admin = new User();
+        $admin->setEmail('admin@gmail.com');
+        $admin->setUsername('Admin User');
+        $admin->setRoles(['ROLE_ADMIN']);
+        $admin->setPassword('$2y$13$bj58WZ0W/ZNd4dmX8y/xge4RGXOSAJVbbbnhQKaLEnqp2FPaO0jD.'); // Will hash later
+        $manager->persist($admin);
+        $this->addReference('user_1', $admin);
+        $this->addReference('user_admin', $admin);
+
+        // User 2: Regular User
+        $user = new User();
+        $user->setEmail('user123@gmail.com');
+        $user->setUsername('User Test');
+        $user->setRoles(['ROLE_USER']);
+        $user->setPassword('$2y$13$oa8lV0yUav9yAw9o6ul8Vehtzx3LFS1ZVVpUJ4k3R0JLmfvHgGwpq'); // Will hash later
+        $manager->persist($user);
+        $this->addReference('user_2', $user);
+        $this->addReference('user_test', $user);
+
+        // User 3: Event Organizer
+        $organizer = new User();
+        $organizer->setEmail('organizer1@gmail.com');
+        $organizer->setUsername('Event Organizer');
+        $organizer->setRoles(['ROLE_ORGANIZER']);
+        $organizer->setPassword('$2y$13$oa8lV0yUav9yAw9o6ul8Vehtzx3LFS1ZVVpUJ4k3R0JLmfvHgGwpq'); // Will hash later
+        $manager->persist($organizer);
+        $this->addReference('user_3', $organizer);
+        $this->addReference('user_organizer', $organizer);
+
         $manager->flush();
     }
-
 }
