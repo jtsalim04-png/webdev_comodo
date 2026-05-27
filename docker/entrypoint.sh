@@ -50,15 +50,42 @@ console() {
 
 # Ensure frontend importmap vendor assets exist in the running container.
 ensure_frontend_assets() {
-    if [ -f "assets/vendor/@hotwired/stimulus.js" ] || [ -f "assets/vendor/@hotwired/stimulus" ]; then
+    # Check if assets already exist in public directory
+    if [ -d "public/assets" ] && [ "$(ls -A public/assets 2>/dev/null)" ]; then
+        echo "Assets already exist in public/assets"
         return 0
     fi
 
-    echo "Importmap vendor assets missing. Running importmap:install..."
+    echo "=== Building frontend assets ==="
+    
+    # Run importmap install
+    echo "Step 1: Installing importmap packages..."
     if ! console importmap:install --no-interaction; then
         echo "ERROR: importmap:install failed; frontend assets are required."
         return 1
     fi
+    
+    # CRITICAL: Compile assets to public directory
+    echo "Step 2: Compiling assets for production..."
+    if ! console asset-map:compile --no-interaction; then
+        echo "ERROR: asset-map:compile failed; compiled assets are required."
+        echo "Check your asset configuration in config/packages/asset_mapper.yaml"
+        return 1
+    fi
+    
+    # Verify assets were created
+    if [ ! -d "public/assets" ] || [ -z "$(ls -A public/assets 2>/dev/null)" ]; then
+        echo "ERROR: No assets were compiled to public/assets/"
+        echo "Running debug:"
+        console debug:asset-mapper || true
+        return 1
+    fi
+    
+    echo "✓ Assets compiled successfully:"
+    echo "  - $(ls public/assets | wc -l) files in public/assets/"
+    ls -la public/assets/ | head -10
+    
+    return 0
 }
 
 if ! ensure_frontend_assets; then
