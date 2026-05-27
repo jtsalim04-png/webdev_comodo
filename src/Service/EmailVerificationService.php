@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 
@@ -12,7 +13,11 @@ class EmailVerificationService
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private MailerInterface $mailer
+        private MailerInterface $mailer,
+        #[Autowire('%env(default:default_mailer_from:MAILER_FROM_ADDRESS)%')]
+        private string $mailerFromAddress,
+        #[Autowire('%env(default:default_mailer_from_name:MAILER_FROM_NAME)%')]
+        private string $mailerFromName,
     ) {
     }
 
@@ -24,7 +29,7 @@ class EmailVerificationService
     public function sendVerificationEmail(User $user, string $verificationUrl): void
     {
         $email = (new TemplatedEmail())
-            ->from(new Address('jtsalim04@gmail.com', 'Comodo Booking'))
+            ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
             ->to(new Address((string) $user->getEmail()))
             ->subject('Please verify your email address')
             ->htmlTemplate('emails/verification.html.twig')

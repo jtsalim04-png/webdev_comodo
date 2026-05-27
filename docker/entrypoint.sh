@@ -3,6 +3,21 @@ set -e
 
 cd /app
 
+# Fail fast in production when required env vars are missing.
+if [ "${APP_ENV:-prod}" = "prod" ]; then
+    if [ -z "${APP_SECRET:-}" ]; then
+        echo "ERROR: APP_SECRET is not set (required for prod)."
+        exit 1
+    fi
+    if [ -z "${DATABASE_URL:-}" ]; then
+        echo "ERROR: DATABASE_URL is not set (required for prod)."
+        exit 1
+    fi
+    if [ -z "${BREVO_API_KEY:-}" ]; then
+        echo "WARN: BREVO_API_KEY is not set — outbound email will fail in prod."
+    fi
+fi
+
 # Railway public URL
 if [ -z "${APP_URL:-}" ] && [ -n "${RAILWAY_PUBLIC_DOMAIN:-}" ]; then
     export APP_URL="https://${RAILWAY_PUBLIC_DOMAIN}"

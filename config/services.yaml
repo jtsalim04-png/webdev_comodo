@@ -5,6 +5,8 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     app.url: '%env(default::string:APP_URL)%'
+    default_mailer_from: 'noreply@localhost'
+    default_mailer_from_name: 'Comodo Booking'
 
 services:
     # default configuration for services in *this* file
