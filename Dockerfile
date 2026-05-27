@@ -24,6 +24,8 @@ RUN if [ "$INSTALL_DEV_DEPS" = "1" ]; then \
 
 COPY . .
 
+RUN cp .env.example .env
+
 RUN if [ "$INSTALL_DEV_DEPS" = "1" ]; then \
         composer install --no-interaction --prefer-dist --no-scripts; \
     else \
@@ -42,8 +44,6 @@ COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY docker/php-fpm-www.conf /usr/local/etc/php-fpm.d/zz-docker.conf
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
-
-RUN cp .env.example .env
 
 EXPOSE 8080
 
