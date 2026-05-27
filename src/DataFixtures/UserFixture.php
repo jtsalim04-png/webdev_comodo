@@ -13,9 +13,12 @@ class UserFixture extends Fixture
         // User 1: Admin User
         $admin = new User();
         $admin->setEmail('admin@gmail.com');
-        $admin->setUsername('Admin User');
-        $admin->setRoles(['ROLE_ADMIN']);
-        $admin->setPassword('$2y$13$bj58WZ0W/ZNd4dmX8y/xge4RGXOSAJVbbbnhQKaLEnqp2FPaO0jD.'); // Will hash later
+        $admin->setFirstName('Admin');
+        $admin->setLastName('User');
+        $admin->setRole('ROLE_ADMIN');  // Changed from setRoles to setRole
+        $admin->setPassword('admin123'); // Will hash later
+        $admin->setIsActive(true);
+        $admin->setCreatedAt(new \DateTimeImmutable('2026-05-25 14:33:00'));
         $manager->persist($admin);
         $this->addReference('user_1', $admin);
         $this->addReference('user_admin', $admin);
@@ -23,9 +26,12 @@ class UserFixture extends Fixture
         // User 2: Regular User
         $user = new User();
         $user->setEmail('user123@gmail.com');
-        $user->setUsername('User Test');
-        $user->setRoles(['ROLE_USER']);
-        $user->setPassword('$2y$13$oa8lV0yUav9yAw9o6ul8Vehtzx3LFS1ZVVpUJ4k3R0JLmfvHgGwpq'); // Will hash later
+        $user->setFirstName('User');
+        $user->setLastName('Test');
+        $user->setRole('ROLE_USER');  // Changed from setRoles to setRole
+        $user->setPassword('user123'); // Will hash later
+        $user->setIsActive(true);
+        $user->setCreatedAt(new \DateTimeImmutable('2026-05-25 14:33:01'));
         $manager->persist($user);
         $this->addReference('user_2', $user);
         $this->addReference('user_test', $user);
@@ -33,9 +39,12 @@ class UserFixture extends Fixture
         // User 3: Event Organizer
         $organizer = new User();
         $organizer->setEmail('organizer1@gmail.com');
-        $organizer->setUsername('Event Organizer');
-        $organizer->setRoles(['ROLE_ORGANIZER']);
-        $organizer->setPassword('$2y$13$oa8lV0yUav9yAw9o6ul8Vehtzx3LFS1ZVVpUJ4k3R0JLmfvHgGwpq'); // Will hash later
+        $organizer->setFirstName('Event');
+        $organizer->setLastName('Organizer');
+        $organizer->setRole('ROLE_ORGANIZER');  // Changed from setRoles to setRole
+        $organizer->setPassword('user123'); // Will hash later
+        $organizer->setIsActive(true);
+        $organizer->setCreatedAt(new \DateTimeImmutable('2026-05-25 14:33:02'));
         $manager->persist($organizer);
         $this->addReference('user_3', $organizer);
         $this->addReference('user_organizer', $organizer);
