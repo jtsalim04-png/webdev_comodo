@@ -18,6 +18,7 @@ class UserFixture extends Fixture
         $admin->setRole('ROLE_ADMIN');  // Changed from setRoles to setRole
         $admin->setPassword('$2y$13$bj58WZ0W/ZNd4dmX8y/xge4RGXOSAJVbbbnhQKaLEnqp2FPaO0jD.'); // Will hash later
         $admin->setIsActive(true);
+        $admin->setIsVerified(true);
         $admin->setCreatedAt(new \DateTimeImmutable('2026-05-25 14:33:00'));
         $manager->persist($admin);
         $this->addReference('user_1', $admin);
@@ -31,6 +32,7 @@ class UserFixture extends Fixture
         $user->setRole('ROLE_USER');  // Changed from setRoles to setRole
         $user->setPassword('$2y$13$oa8lV0yUav9yAw9o6ul8Vehtzx3LFS1ZVVpUJ4k3R0JLmfvHgGwpq'); // Will hash later
         $user->setIsActive(true);
+        $user->setIsVerified(true);
         $user->setCreatedAt(new \DateTimeImmutable('2026-05-25 14:33:01'));
         $manager->persist($user);
         $this->addReference('user_2', $user);
@@ -44,6 +46,7 @@ class UserFixture extends Fixture
         $organizer->setRole('ROLE_ORGANIZER');  // Changed from setRoles to setRole
         $organizer->setPassword('$2y$13$oa8lV0yUav9yAw9o6ul8Vehtzx3LFS1ZVVpUJ4k3R0JLmfvHgGwpq'); // Will hash later
         $organizer->setIsActive(true);
+        $organizer->setIsVerified(true);
         $organizer->setCreatedAt(new \DateTimeImmutable('2026-05-25 14:33:02'));
         $manager->persist($organizer);
         $this->addReference('user_3', $organizer);
