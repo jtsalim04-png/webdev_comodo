@@ -16,18 +16,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
-
 # Copy only composer files first for better layer caching
-COPY composer.json composer.lock symfony.lock package.json package-lock.json* ./
+COPY composer.json composer.lock symfony.lock package.json* package-lock.json* ./
 RUN if [ "$INSTALL_DEV_DEPS" = "1" ]; then \
         composer install --no-interaction --prefer-dist --no-scripts; \
     else \
         composer install --no-interaction --prefer-dist --no-dev --no-scripts --optimize-autoloader; \
     fi
 
-# Install npm dependencies if package.json exists
+# Install npm dependencies if package.json exists (optional)
 RUN if [ -f package.json ]; then npm ci --omit=dev || npm install; fi
-
 # Copy the rest of the application
 COPY . .
 
