@@ -25,6 +25,7 @@
         "symfony/asset-mapper": "7.3.*",
         "symfony/brevo-mailer": "7.3.*",
         "symfony/console": "7.3.*",
+        "symfony/debug-bundle": "7.3.*",
         "symfony/doctrine-messenger": "7.3.*",
         "symfony/dotenv": "7.3.*",
         "symfony/expression-language": "7.3.*",
@@ -110,7 +111,6 @@
         "phpunit/phpunit": "^12.4",
         "symfony/browser-kit": "7.3.*",
         "symfony/css-selector": "7.3.*",
-        "symfony/debug-bundle": "7.3.*",
         "symfony/maker-bundle": "^1.67",
         "symfony/stopwatch": "7.3.*",
         "symfony/web-profiler-bundle": "7.3.*"
