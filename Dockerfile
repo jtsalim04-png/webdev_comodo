@@ -17,7 +17,7 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 # Copy only composer files first for better layer caching
-COPY composer.json composer.lock symfony.lock package.json* package-lock.json* ./
+COPY composer.json* composer.lock* symfony.lock* package.json* package-lock.json* ./
 RUN if [ "$INSTALL_DEV_DEPS" = "1" ]; then \
         composer install --no-interaction --prefer-dist --no-scripts; \
     else \
