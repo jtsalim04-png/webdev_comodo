@@ -11,10 +11,10 @@ final class AppUrlService
 
     public function getBaseUrl(): ?string
     {
-        if ($appUrl === null || $appUrl === '') {
+        if ($this->appUrl === null || $this->appUrl === '') {
             return null;
         }
 
-        return rtrim($appUrl, '/');
+        return rtrim($this->appUrl, '/');
     }
 }

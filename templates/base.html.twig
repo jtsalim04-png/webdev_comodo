@@ -10,7 +10,7 @@
         {% endblock %}
 
         {% block javascripts %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
+            {# Importmap app disabled for Railway deployment runtime. #}
         {% endblock %}
     </head>
     <body class="{% block body_class %}{% endblock %}">
