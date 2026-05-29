@@ -54,6 +54,7 @@ security:
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/register, roles: PUBLIC_ACCESS }
         - { path: ^/api/verify-email, roles: PUBLIC_ACCESS }
+        - { path: ^/api/admin, roles: ROLE_ADMIN }
         - { path: ^/api, roles: IS_AUTHENTICATED }
         - { path: ^/venue, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/event, roles: IS_AUTHENTICATED_FULLY }

@@ -17,11 +17,16 @@ class TicketPurchaseService
 
     public function purchase(User $customer, Event $event): Ticket
     {
+        return $this->createForCustomer($customer, $event, 'confirmed');
+    }
+
+    public function createForCustomer(User $customer, Event $event, string $status = 'confirmed'): Ticket
+    {
         $ticket = new Ticket();
         $ticket->setEvent($event);
         $ticket->setCustomer($customer);
         $ticket->setPrice((string) $event->getPrice());
-        $ticket->setStatus('confirmed');
+        $ticket->setStatus($status);
         $ticket->setPurchaseDate(new \DateTimeImmutable());
 
         $this->entityManager->persist($ticket);
