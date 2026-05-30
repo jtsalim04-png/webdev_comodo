@@ -1,0 +1,41 @@
+{% if tickets|length > 0 %}
+    <table class="admin-table datatable">
+        <thead>
+            <tr>
+                <th>Event</th>
+                <th>Date</th>
+                <th>Location</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Purchased</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ticket in tickets %}
+                {% set event = ticket.event %}
+                <tr>
+                    <td>{{ event ? event.title : 'Event removed' }}</td>
+                    <td>{{ event and event.eventDate ? event.eventDate|date('M d, Y H:i') : 'TBD' }}</td>
+                    <td>{{ event and event.location ? event.location : 'TBD' }}</td>
+                    <td>₱{{ ticket.price|number_format(2, '.', ',') }}</td>
+                    <td>
+                        <span class="badge {% if ticket.status == 'confirmed' %}bg-success{% elseif ticket.status == 'pending' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                            {{ ticket.status|title }}
+                        </span>
+                    </td>
+                    <td>{{ ticket.purchaseDate ? ticket.purchaseDate|date('M d, Y H:i') : 'N/A' }}</td>
+                    <td>
+                        {% if event %}
+                            <a href="{{ path('order_show', {'id': event.id}) }}" class="btn btn-primary btn-sm">View Ticket</a>
+                        {% else %}
+                            <button class="btn btn-secondary btn-sm" disabled>View Ticket</button>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <div class="p-4 text-muted">You have not purchased any tickets yet.</div>
+{% endif %}

@@ -167,6 +167,29 @@
                     window.setTimeout(adjustAllTables, 220);
                     window.setTimeout(adjustAllTables, 560);
                 });
+                document.addEventListener('realtime:updated', function () {
+                    document.querySelectorAll('table.datatable').forEach(function(table) {
+                        if (window.jQuery.fn.DataTable.isDataTable(table)) {
+                            window.jQuery(table).DataTable().destroy();
+                        }
+                    });
+                    document.querySelectorAll('table.datatable').forEach(function(table) {
+                        if (window.jQuery(table).hasClass('dataTable')) {
+                            return;
+                        }
+                        window.jQuery(table).DataTable({
+                            pageLength: 10,
+                            order: [],
+                            responsive: false,
+                            autoWidth: false,
+                            scrollX: true,
+                            scrollCollapse: true,
+                            width: '100%',
+                            language: { search: 'Search:' }
+                        });
+                    });
+                    window.setTimeout(adjustAllTables, 200);
+                });
                 document.addEventListener('fullscreenchange', function() {
                     window.setTimeout(adjustAllTables, 220);
                 });

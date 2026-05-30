@@ -102,6 +102,17 @@
 
     document.addEventListener('DOMContentLoaded', initDataTables);
     document.addEventListener('turbo:load', initDataTables);
+    document.addEventListener('realtime:updated', function () {
+      if (!(window.jQuery && window.jQuery.fn.DataTable)) {
+        return;
+      }
+      document.querySelectorAll('table.datatable').forEach(function(table) {
+        if (window.jQuery.fn.DataTable.isDataTable(table)) {
+          window.jQuery(table).DataTable().destroy();
+        }
+      });
+      initDataTables();
+    });
   </script>
   <script>
     (function() {

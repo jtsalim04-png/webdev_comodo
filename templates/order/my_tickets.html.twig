@@ -17,7 +17,12 @@
 
     <div class="card">
         <div class="card-body p-0">
-            <div class="table-responsive admin-table-wrap">
+            <div class="table-responsive admin-table-wrap"
+                 id="user-my-tickets-live"
+                 data-controller="realtime-poll"
+                 data-realtime-poll-topic-value="user_my_tickets"
+                 data-realtime-poll-since-value="{{ realtime_version }}"
+                 data-realtime-mode="inner">
                 {% if tickets|length > 0 %}
                     <table class="admin-table datatable">
                         <thead>

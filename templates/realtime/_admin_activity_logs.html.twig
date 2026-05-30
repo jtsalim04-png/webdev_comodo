@@ -1,0 +1,30 @@
+<tbody>
+    {% for log in logs %}
+    <tr>
+        <td>
+            {% if log.user %}
+                {{ log.user.id }}
+            {% else %}
+                <em class="text-muted">-</em>
+            {% endif %}
+        </td>
+        <td>
+            {% if log.username %}
+                {{ log.username }}
+            {% elseif log.user %}
+                {{ log.user.email }}
+            {% else %}
+                <em class="text-muted">-</em>
+            {% endif %}
+        </td>
+        <td>{{ log.role }}</td>
+        <td><span class="badge bg-secondary">{{ log.action }}</span></td>
+        <td>{{ log.targetData ?: log.description ?: '-' }}</td>
+        <td>{{ log.createdAt ? log.createdAt|date('M d, Y H:i:s') : 'N/A' }}</td>
+    </tr>
+    {% else %}
+    <tr>
+        <td colspan="6" class="text-center py-4 text-muted">No activity logs found</td>
+    </tr>
+    {% endfor %}
+</tbody>

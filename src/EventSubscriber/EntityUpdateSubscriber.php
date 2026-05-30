@@ -4,6 +4,7 @@ namespace App\EventSubscriber;
 
 use App\Entity\ActivityLog;
 use App\Entity\User;
+use App\Service\RealtimeVersionService;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\EntityManagerInterface;
@@ -27,7 +28,8 @@ class EntityUpdateSubscriber implements EventSubscriber
 
     public function __construct(
         private Security $security,
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager,
+        private RealtimeVersionService $realtimeVersionService,
     ) {}
 
     public function getSubscribedEvents(): array
@@ -51,6 +53,7 @@ class EntityUpdateSubscriber implements EventSubscriber
 
         error_log("EntityUpdateSubscriber: postPersist called for " . $entityClass);
         $this->logAction('CREATE', $entity, 'Created ' . $this->getEntityName($entityClass));
+        $this->realtimeVersionService->bumpForEntity($entity);
     }
 
     public function postUpdate(LifecycleEventArgs $args): void
@@ -73,6 +76,7 @@ class EntityUpdateSubscriber implements EventSubscriber
 
         error_log("EntityUpdateSubscriber: postUpdate called for " . $entityClass);
         $this->logAction('UPDATE', $entity, 'Updated ' . $this->getEntityName($entityClass));
+        $this->realtimeVersionService->bumpForEntity($entity);
     }
 
     public function postRemove(LifecycleEventArgs $args): void
@@ -86,6 +90,7 @@ class EntityUpdateSubscriber implements EventSubscriber
 
         error_log("EntityUpdateSubscriber: postRemove called for " . $entityClass);
         $this->logAction('DELETE', $entity, 'Deleted ' . $this->getEntityName($entityClass));
+        $this->realtimeVersionService->bumpForEntity($entity);
     }
 
     public function postFlush(PostFlushEventArgs $args): void

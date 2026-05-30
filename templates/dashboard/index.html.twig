@@ -19,6 +19,11 @@
                 </div>
             </div>
 
+            <div id="user-dashboard-live"
+                 data-controller="realtime-poll"
+                 data-realtime-poll-topic-value="user_dashboard"
+                 data-realtime-poll-since-value="{{ realtime_version }}"
+                 data-realtime-mode="inner">
             {% if events is empty %}
                 <div class="events-carousel__empty">
                     <p>No upcoming events yet. Please check back soon.</p>
@@ -59,11 +64,12 @@
                     {% endfor %}
                 </div>
             {% endif %}
+            </div>
         </section>
     </div>
 
     <script>
-        (function () {
+        function initEventsCarousel() {
             const track = document.querySelector('[data-carousel-track]');
             if (!track) return;
 
@@ -82,14 +88,30 @@
                 track.scrollBy({ left: dir * getScrollAmount(), behavior: 'smooth' });
             };
 
-            prev && prev.addEventListener('click', () => scrollByCards(-1));
-            next && next.addEventListener('click', () => scrollByCards(1));
+            if (prev && !prev.dataset.carouselBound) {
+                prev.dataset.carouselBound = '1';
+                prev.addEventListener('click', () => scrollByCards(-1));
+            }
+            if (next && !next.dataset.carouselBound) {
+                next.dataset.carouselBound = '1';
+                next.addEventListener('click', () => scrollByCards(1));
+            }
 
-            track.addEventListener('keydown', (e) => {
-                if (e.key === 'ArrowLeft') scrollByCards(-1);
-                if (e.key === 'ArrowRight') scrollByCards(1);
-            });
-        })();
+            if (!track.dataset.carouselBound) {
+                track.dataset.carouselBound = '1';
+                track.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowLeft') scrollByCards(-1);
+                    if (e.key === 'ArrowRight') scrollByCards(1);
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initEventsCarousel);
+        document.addEventListener('realtime:updated', function (event) {
+            if (event.detail?.topic === 'user_dashboard') {
+                initEventsCarousel();
+            }
+        });
     </script>
 {% endblock %}
 

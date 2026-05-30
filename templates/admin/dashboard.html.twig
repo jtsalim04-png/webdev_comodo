@@ -49,61 +49,12 @@
     <h1 class="mb-2">Admin Dashboard</h1>
 
     <!-- Statistics Cards -->
-    <div class="row dashboard-stats">
-        <div class="col-md-3">
-            <div class="card text-white" style="background-color: var(--butterscotch-mousse);">
-                <div class="card-body">
-                    <h5 class="card-title">Total Users</h5>
-                    <p class="card-text" style="font-size: 2em;">{{ stats.total_users }}</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-white" style="background-color: var(--butterscotch-dark);">
-                <div class="card-body">
-                    <h5 class="card-title">Total Events</h5>
-                    <p class="card-text" style="font-size: 2em;">{{ stats.total_events }}</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-white" style="background-color: var(--timberwolf);">
-                <div class="card-body">
-                    <h5 class="card-title">Total Tickets</h5>
-                    <p class="card-text" style="font-size: 2em;">{{ stats.total_tickets }}</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-white" style="background-color: var(--butterscotch-mousse);">
-                <div class="card-body">
-                    <h5 class="card-title">Total Revenue</h5>
-                    <p class="card-text" style="font-size: 2em;">₱{{ stats.total_revenue|number_format(2, '.', ',') }}</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Charts -->
-    <div class="chart-grid">
-        <div class="card chart-card h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="card-title mb-0">User Roles Breakdown</h5>
-                        <span class="text-muted small">Admins vs Organizers vs Users</span>
-                    </div>
-                <canvas id="roleChart" height="180" aria-label="Role distribution chart"></canvas>
-            </div>
-        </div>
-        <div class="card chart-card h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="card-title mb-0">Top Events by Revenue</h5>
-                        <span class="text-muted small">Revenue & tickets sold</span>
-                    </div>
-                <canvas id="eventRevenueChart" height="180" aria-label="Event revenue chart"></canvas>
-            </div>
-        </div>
+    <div id="admin-dashboard-live"
+         data-controller="realtime-poll"
+         data-realtime-poll-topic-value="admin_dashboard"
+         data-realtime-poll-since-value="{{ realtime_version }}"
+         data-realtime-mode="inner">
+        {% include 'admin/_dashboard_content.html.twig' %}
     </div>
 </div>
 {% endblock %}
@@ -123,22 +74,35 @@
         const eventSalesChart = {{ eventSalesChart|json_encode|raw }};
         const palette = ['#f6a90c', '#f18f01', '#5c677d', '#5dade2', '#27ae60', '#9b59b6'];
 
-        function initCharts() {
+        window.initAdminDashboardCharts = function initAdminDashboardCharts() {
             if (typeof Chart === 'undefined') {
                 console.warn('Chart.js failed to load; charts not rendered.');
                 return;
             }
 
-            // Role distribution doughnut
+            const dataEl = document.getElementById('admin-dashboard-chart-data');
+            let roleData = roleChartData;
+            let salesData = eventSalesChart;
+            if (dataEl) {
+                try {
+                    const parsed = JSON.parse(dataEl.textContent || '{}');
+                    roleData = parsed.roleChartData || roleData;
+                    salesData = parsed.eventSalesChart || salesData;
+                } catch (e) {
+                    // keep server-rendered defaults
+                }
+            }
+
             const roleCtx = document.getElementById('roleChart');
             if (roleCtx) {
+                Chart.getChart(roleCtx)?.destroy();
                 new Chart(roleCtx, {
                     type: 'doughnut',
                     data: {
-                        labels: roleChartData.labels,
+                        labels: roleData.labels,
                         datasets: [{
-                            data: roleChartData.data,
-                            backgroundColor: palette.slice(0, roleChartData.labels.length),
+                            data: roleData.data,
+                            backgroundColor: palette.slice(0, roleData.labels.length),
                             borderWidth: 1
                         }]
                     },
@@ -151,12 +115,12 @@
                 });
             }
 
-            // Event revenue bar
             const eventCtx = document.getElementById('eventRevenueChart');
             if (eventCtx) {
-                const labels = eventSalesChart.labels.length ? eventSalesChart.labels : ['No data'];
-                const revenueData = eventSalesChart.revenue.length ? eventSalesChart.revenue : [0];
-                const ticketData = eventSalesChart.tickets.length ? eventSalesChart.tickets : [0];
+                Chart.getChart(eventCtx)?.destroy();
+                const labels = salesData.labels.length ? salesData.labels : ['No data'];
+                const revenueData = salesData.revenue.length ? salesData.revenue : [0];
+                const ticketData = salesData.tickets.length ? salesData.tickets : [0];
 
                 new Chart(eventCtx, {
                     type: 'bar',
@@ -210,10 +174,15 @@
                     }
                 });
             }
-        }
+        };
 
-        document.addEventListener('DOMContentLoaded', initCharts);
-        document.addEventListener('turbo:load', initCharts);
+        document.addEventListener('DOMContentLoaded', window.initAdminDashboardCharts);
+        document.addEventListener('turbo:load', window.initAdminDashboardCharts);
+        document.addEventListener('realtime:updated', function (event) {
+            if (event.detail?.topic === 'admin_dashboard') {
+                window.initAdminDashboardCharts();
+            }
+        });
     </script>
 {% endblock %}
 

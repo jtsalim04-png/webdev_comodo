@@ -1,0 +1,30 @@
+{% if events|length > 0 %}
+    <table class="admin-table datatable">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Date</th>
+                <th>Location</th>
+                <th>Price</th>
+                <th>Organizer</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in events %}
+            <tr>
+                <td>{{ event.title }}</td>
+                <td>{{ event.eventDate ? event.eventDate|date('M d, Y H:i') : 'TBD' }}</td>
+                <td>{{ event.location ?: 'TBD' }}</td>
+                <td>₱{{ event.price|number_format(2, '.', ',') }}</td>
+                <td>{{ event.organizer ? event.organizer.firstName ~ ' ' ~ event.organizer.lastName : 'N/A' }}</td>
+                <td>
+                    <a href="{{ path('order_show', {'id': event.id}) }}" class="btn btn-primary btn-sm">View / Buy</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <div class="p-4 text-muted">No events available right now.</div>
+{% endif %}

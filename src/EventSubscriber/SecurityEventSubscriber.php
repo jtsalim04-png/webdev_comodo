@@ -4,6 +4,7 @@ namespace App\EventSubscriber;
 
 use App\Entity\ActivityLog;
 use App\Entity\User;
+use App\Service\RealtimeVersionService;
 use Symfony\Bundle\SecurityBundle\Security;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -17,7 +18,8 @@ class SecurityEventSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private Security $security
+        private Security $security,
+        private RealtimeVersionService $realtimeVersionService,
     ) {}
 
     public static function getSubscribedEvents(): array
@@ -50,6 +52,7 @@ class SecurityEventSubscriber implements EventSubscriberInterface
 
         $this->entityManager->persist($log);
         $this->entityManager->flush();
+        $this->realtimeVersionService->bump();
     }
 
     public function onLogout(LogoutEvent $event): void
@@ -79,6 +82,7 @@ class SecurityEventSubscriber implements EventSubscriberInterface
 
         $this->entityManager->persist($log);
         $this->entityManager->flush();
+        $this->realtimeVersionService->bump();
     }
 
     public function onKernelResponse(ResponseEvent $event): void
