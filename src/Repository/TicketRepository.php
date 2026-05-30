@@ -15,5 +15,19 @@ class TicketRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Ticket::class);
     }
+
+    /**
+     * @return Ticket[]
+     */
+    public function findRecentPurchases(int $limit = 20): array
+    {
+        return $this->createQueryBuilder('t')
+            ->leftJoin('t.customer', 'c')->addSelect('c')
+            ->leftJoin('t.event', 'e')->addSelect('e')
+            ->orderBy('t.purchaseDate', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
 }
 
