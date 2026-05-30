@@ -6,9 +6,10 @@ use App\Entity\Event;
 use App\Entity\Ticket;
 use App\Entity\User;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\TableNotFoundException;
 
 /**
- * Global data version for web polling — stored in DB so all CRUD updates are visible across workers.
+ * Global data version for web polling — stored in DB (see Version20260529120000 migration).
  */
 class RealtimeVersionService
 {
@@ -19,24 +20,33 @@ class RealtimeVersionService
 
     public function getVersion(): int
     {
-        $this->ensureRowExists();
+        try {
+            $version = $this->connection->fetchOne('SELECT version FROM realtime_version WHERE id = 1');
 
-        $version = $this->connection->fetchOne('SELECT version FROM realtime_version WHERE id = 1');
-
-        return (int) $version;
+            return (int) $version;
+        } catch (TableNotFoundException) {
+            return 0;
+        }
     }
 
     public function bump(): int
     {
-        $this->ensureRowExists();
-        $version = self::now();
+        try {
+            $version = self::now();
 
-        $this->connection->executeStatement(
-            'UPDATE realtime_version SET version = :version WHERE id = 1',
-            ['version' => $version]
-        );
+            $updated = $this->connection->executeStatement(
+                'UPDATE realtime_version SET version = :version WHERE id = 1',
+                ['version' => $version]
+            );
 
-        return $version;
+            if ($updated === 0) {
+                return $this->getVersion();
+            }
+
+            return $version;
+        } catch (TableNotFoundException) {
+            return 0;
+        }
     }
 
     public function bumpForEntity(object $entity): void
@@ -44,27 +54,6 @@ class RealtimeVersionService
         if ($entity instanceof User || $entity instanceof Event || $entity instanceof Ticket) {
             $this->bump();
         }
-    }
-
-    private function ensureRowExists(): void
-    {
-        try {
-            $exists = $this->connection->fetchOne('SELECT id FROM realtime_version WHERE id = 1');
-        } catch (\Throwable) {
-            $this->connection->executeStatement(
-                'CREATE TABLE IF NOT EXISTS realtime_version (id INT NOT NULL, version BIGINT NOT NULL, PRIMARY KEY(id))'
-            );
-            $exists = false;
-        }
-
-        if ($exists !== false) {
-            return;
-        }
-
-        $this->connection->insert('realtime_version', [
-            'id' => 1,
-            'version' => self::now(),
-        ]);
     }
 
     private static function now(): int

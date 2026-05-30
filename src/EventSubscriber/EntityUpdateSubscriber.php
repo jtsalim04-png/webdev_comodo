@@ -4,9 +4,10 @@ namespace App\EventSubscriber;
 
 use App\Entity\ActivityLog;
 use App\Entity\User;
+use App\Service\FixtureLoadState;
 use App\Service\RealtimeVersionService;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Events;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
@@ -22,14 +23,15 @@ class EntityUpdateSubscriber
         ActivityLog::class,
     ];
 
-    private array $pendingLogs = [];
-    private bool $isFlushingLogs = false;
+    /** @var list<array<string, mixed>> */
+    private array $pendingLogRows = [];
     private bool $pendingRealtimeBump = false;
 
     public function __construct(
         private Security $security,
-        private EntityManagerInterface $entityManager,
+        private Connection $connection,
         private RealtimeVersionService $realtimeVersionService,
+        private FixtureLoadState $fixtureLoadState,
     ) {
     }
 
@@ -62,28 +64,36 @@ class EntityUpdateSubscriber
 
     public function postFlush(PostFlushEventArgs $args): void
     {
+        if ($this->fixtureLoadState->isLoading()) {
+            $this->pendingLogRows = [];
+            $this->pendingRealtimeBump = false;
+
+            return;
+        }
+
         if ($this->pendingRealtimeBump) {
             $this->realtimeVersionService->bump();
             $this->pendingRealtimeBump = false;
         }
 
-        if (empty($this->pendingLogs) || $this->isFlushingLogs) {
+        if ($this->pendingLogRows === []) {
             return;
         }
 
-        $this->isFlushingLogs = true;
+        $rows = $this->pendingLogRows;
+        $this->pendingLogRows = [];
 
-        foreach ($this->pendingLogs as $log) {
-            $this->entityManager->persist($log);
+        foreach ($rows as $row) {
+            $this->connection->insert('activity_log', $row);
         }
-
-        $this->pendingLogs = [];
-        $this->entityManager->flush();
-        $this->isFlushingLogs = false;
     }
 
     private function handleEntityChange(LifecycleEventArgs $args, string $action, string $verb): void
     {
+        if ($this->fixtureLoadState->isLoading()) {
+            return;
+        }
+
         $entity = $args->getObject();
         $entityClass = get_class($entity);
 
@@ -92,30 +102,32 @@ class EntityUpdateSubscriber
         }
 
         $this->pendingRealtimeBump = true;
-        $this->logAction($action, $entity, $verb.' '.$this->getEntityName($entityClass));
+        $this->queueLogRow($action, $entity, $verb.' '.$this->getEntityName($entityClass));
     }
 
-    private function logAction(string $action, object $entity, string $description): void
+    private function queueLogRow(string $action, object $entity, string $description): void
     {
         $entityId = method_exists($entity, 'getId') ? $entity->getId() : null;
-
-        $log = new ActivityLog();
-        $log->setAction($action);
-        $log->setDescription($this->getDetailedDescription($action, $entity, $description, $entityId));
-        $log->setTargetData($this->getTargetData($entity, $entityId));
-        $log->setCreatedAt(new \DateTimeImmutable());
-
         $user = $this->security->getUser();
+        $role = 'SYSTEM';
+        $username = 'SYSTEM';
+        $userId = null;
+
         if ($user instanceof User) {
-            $log->setUser($user);
-            $log->setUsername($user->getEmail());
-            $log->setRole($user->getRoles()[0] ?? 'ROLE_USER');
-        } else {
-            $log->setRole('SYSTEM');
-            $log->setUsername('SYSTEM');
+            $userId = $user->getId();
+            $username = $user->getEmail();
+            $role = $user->getRoles()[0] ?? 'ROLE_USER';
         }
 
-        $this->pendingLogs[] = $log;
+        $this->pendingLogRows[] = [
+            'user_id' => $userId,
+            'role' => $role,
+            'action' => $action,
+            'description' => $this->getDetailedDescription($action, $entity, $description, $entityId),
+            'username' => $username,
+            'target_data' => $this->getTargetData($entity, $entityId),
+            'created_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+        ];
     }
 
     private function getTargetData(object $entity, ?int $entityId): string
