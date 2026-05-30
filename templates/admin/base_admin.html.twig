@@ -16,7 +16,7 @@
   </style>
   {% block stylesheets %}{% endblock %}
 </head>
-<body data-route="{{ app.request.get('_route') }}">
+<body data-route="{{ app.request.get('_route') }}" data-controller="realtime-hub" data-realtime-hub-since-value="{{ realtime_version }}">
   <div class="admin-layout">
     <button type="button" class="admin-burger" aria-label="Open admin menu" aria-controls="admin-sidebar" aria-expanded="false">
       &#9776;
@@ -51,6 +51,8 @@
     </aside>
 
     <main class="admin-main">
+      {% include 'admin/_notification_panel.html.twig' %}
+
       {% for label, messages in app.flashes %}
         {% for message in messages %}
           <div class="alert alert-{{ label }} alert-dismissible fade show m-3" role="alert">

@@ -1,0 +1,14 @@
+<section class="admin-notifications-panel" aria-label="Live purchase notifications">
+    <div class="admin-notifications-panel__header">
+        <h2 class="admin-notifications-panel__title">
+            <i class="fas fa-bell" aria-hidden="true"></i>
+            Live sales
+        </h2>
+        <span class="admin-notifications-panel__live" title="Updates automatically">Live</span>
+    </div>
+    <div class="admin-notifications-panel__body"
+         data-realtime-topic="admin_notifications"
+         data-realtime-mode="inner">
+        {% include 'admin/_notification_list.html.twig' with { notifications: purchase_notifications() } %}
+    </div>
+</section>

@@ -50,9 +50,7 @@
 
     <!-- Statistics Cards -->
     <div id="admin-dashboard-live"
-         data-controller="realtime-poll"
-         data-realtime-poll-topic-value="admin_dashboard"
-         data-realtime-poll-since-value="{{ realtime_version }}"
+         data-realtime-topic="admin_dashboard"
          data-realtime-mode="inner">
         {% include 'admin/_dashboard_content.html.twig' %}
     </div>
@@ -178,10 +176,8 @@
 
         document.addEventListener('DOMContentLoaded', window.initAdminDashboardCharts);
         document.addEventListener('turbo:load', window.initAdminDashboardCharts);
-        document.addEventListener('realtime:updated', function (event) {
-            if (event.detail?.topic === 'admin_dashboard') {
-                window.initAdminDashboardCharts();
-            }
+        document.addEventListener('realtime:updated', function () {
+            window.initAdminDashboardCharts();
         });
     </script>
 {% endblock %}

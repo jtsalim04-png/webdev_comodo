@@ -1,11 +1,10 @@
 import { Controller } from '@hotwired/stimulus';
 
 /**
- * Polls /realtime/poll and swaps HTML fragments — web equivalent of app useFocusEffect + pull-to-refresh.
+ * Single poll for the page — refreshes every [data-realtime-topic] target when data changes.
  */
 export default class extends Controller {
     static values = {
-        topic: String,
         since: { type: Number, default: 0 },
         interval: { type: Number, default: 5000 },
         pollUrl: { type: String, default: '/realtime/poll' },
@@ -51,16 +50,26 @@ export default class extends Controller {
             }
 
             this.sinceValue = pollData.version;
-            await this.refreshFragment();
+            await this.refreshAllTargets();
         } catch (error) {
-            // Silent fail — next poll will retry
+            // retry on next interval
         }
     }
 
-    async refreshFragment() {
-        const query = window.location.search || '';
-        const fragmentUrl = `/realtime/fragment/${this.topicValue}${query}`;
-        const response = await fetch(fragmentUrl, {
+    async refreshAllTargets() {
+        const targets = document.querySelectorAll('[data-realtime-topic]');
+        await Promise.all(Array.from(targets).map((element) => this.refreshTarget(element)));
+        document.dispatchEvent(new CustomEvent('realtime:updated'));
+    }
+
+    async refreshTarget(element) {
+        const topic = element.dataset.realtimeTopic;
+        if (!topic) {
+            return;
+        }
+
+        const query = element.dataset.realtimeQuery || window.location.search || '';
+        const response = await fetch(`/realtime/fragment/${topic}${query}`, {
             headers: { Accept: 'text/html' },
             credentials: 'same-origin',
         });
@@ -70,15 +79,20 @@ export default class extends Controller {
         }
 
         const html = await response.text();
-        this.applyUpdate(html);
-        document.dispatchEvent(new CustomEvent('realtime:updated', { detail: { topic: this.topicValue } }));
+        this.applyUpdate(element, html);
     }
 
-    applyUpdate(html) {
-        const mode = this.element.dataset.realtimeMode || 'replace';
+    applyUpdate(element, html) {
+        this.destroyDataTables(element);
+
+        const mode = element.dataset.realtimeMode || 'inner';
+        if (mode === 'inner') {
+            element.innerHTML = html;
+            return;
+        }
 
         if (mode === 'tbody') {
-            const table = this.element.closest('table');
+            const table = element.tagName === 'TABLE' ? element : element.querySelector('table');
             if (table) {
                 table.querySelector('tbody')?.remove();
                 table.insertAdjacentHTML('beforeend', html);
@@ -86,11 +100,22 @@ export default class extends Controller {
             return;
         }
 
-        if (mode === 'inner') {
-            this.element.innerHTML = html;
+        element.outerHTML = html;
+    }
+
+    destroyDataTables(scope) {
+        if (!window.jQuery?.fn?.DataTable) {
             return;
         }
 
-        this.element.outerHTML = html;
+        const tables = scope.tagName === 'TABLE'
+            ? [scope]
+            : scope.querySelectorAll('table.datatable');
+
+        tables.forEach((table) => {
+            if (window.jQuery.fn.DataTable.isDataTable(table)) {
+                window.jQuery(table).DataTable().destroy(false);
+            }
+        });
     }
 }

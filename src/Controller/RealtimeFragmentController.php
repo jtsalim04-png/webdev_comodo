@@ -7,6 +7,7 @@ use App\Repository\EventRepository;
 use App\Repository\TicketRepository;
 use App\Repository\UserRepository;
 use App\Service\AdminDashboardDataProvider;
+use App\Service\PurchaseNotificationProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,6 +16,16 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/realtime/fragment')]
 class RealtimeFragmentController extends AbstractController
 {
+    #[Route('/admin_notifications', name: 'realtime_fragment_admin_notifications', methods: ['GET'])]
+    public function adminNotifications(PurchaseNotificationProvider $notificationProvider): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        return $this->render('realtime/_admin_notifications.html.twig', [
+            'notifications' => $notificationProvider->getNotifications(),
+        ]);
+    }
+
     #[Route('/admin_dashboard', name: 'realtime_fragment_admin_dashboard', methods: ['GET'])]
     public function adminDashboard(AdminDashboardDataProvider $dashboardDataProvider): Response
     {

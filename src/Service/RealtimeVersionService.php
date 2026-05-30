@@ -5,39 +5,36 @@ namespace App\Service;
 use App\Entity\Event;
 use App\Entity\Ticket;
 use App\Entity\User;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
+use Doctrine\DBAL\Connection;
 
 /**
- * Global data version for web/mobile polling (mirrors app pull-to-refresh / focus reload).
+ * Global data version for web polling — stored in DB so all CRUD updates are visible across workers.
  */
 class RealtimeVersionService
 {
-    private const CACHE_KEY = 'comodo.realtime.version';
-
     public function __construct(
-        private CacheInterface $cache,
+        private Connection $connection,
     ) {
     }
 
     public function getVersion(): int
     {
-        return (int) $this->cache->get(self::CACHE_KEY, static function (ItemInterface $item): int {
-            $item->expiresAfter(null);
+        $this->ensureRowExists();
 
-            return self::now();
-        });
+        $version = $this->connection->fetchOne('SELECT version FROM realtime_version WHERE id = 1');
+
+        return (int) $version;
     }
 
     public function bump(): int
     {
+        $this->ensureRowExists();
         $version = self::now();
-        $this->cache->delete(self::CACHE_KEY);
-        $this->cache->get(self::CACHE_KEY, static function (ItemInterface $item) use ($version): int {
-            $item->expiresAfter(null);
 
-            return $version;
-        });
+        $this->connection->executeStatement(
+            'UPDATE realtime_version SET version = :version WHERE id = 1',
+            ['version' => $version]
+        );
 
         return $version;
     }
@@ -47,6 +44,27 @@ class RealtimeVersionService
         if ($entity instanceof User || $entity instanceof Event || $entity instanceof Ticket) {
             $this->bump();
         }
+    }
+
+    private function ensureRowExists(): void
+    {
+        try {
+            $exists = $this->connection->fetchOne('SELECT id FROM realtime_version WHERE id = 1');
+        } catch (\Throwable) {
+            $this->connection->executeStatement(
+                'CREATE TABLE IF NOT EXISTS realtime_version (id INT NOT NULL, version BIGINT NOT NULL, PRIMARY KEY(id))'
+            );
+            $exists = false;
+        }
+
+        if ($exists !== false) {
+            return;
+        }
+
+        $this->connection->insert('realtime_version', [
+            'id' => 1,
+            'version' => self::now(),
+        ]);
     }
 
     private static function now(): int

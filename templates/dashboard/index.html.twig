@@ -20,9 +20,7 @@
             </div>
 
             <div id="user-dashboard-live"
-                 data-controller="realtime-poll"
-                 data-realtime-poll-topic-value="user_dashboard"
-                 data-realtime-poll-since-value="{{ realtime_version }}"
+                 data-realtime-topic="user_dashboard"
                  data-realtime-mode="inner">
             {% if events is empty %}
                 <div class="events-carousel__empty">
@@ -107,10 +105,8 @@
         }
 
         document.addEventListener('DOMContentLoaded', initEventsCarousel);
-        document.addEventListener('realtime:updated', function (event) {
-            if (event.detail?.topic === 'user_dashboard') {
-                initEventsCarousel();
-            }
+        document.addEventListener('realtime:updated', function () {
+            initEventsCarousel();
         });
     </script>
 {% endblock %}

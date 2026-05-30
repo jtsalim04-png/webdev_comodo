@@ -13,7 +13,7 @@
             {% block importmap %}{{ importmap('app') }}{% endblock %}
         {% endblock %}
     </head>
-    <body class="{% block body_class %}{% endblock %}">
+    <body class="{% block body_class %}{% endblock %}"{% if app.user %} data-controller="realtime-hub" data-realtime-hub-since-value="{{ realtime_version }}"{% endif %}>
         <nav class="navbar">
             <div class="nav-container">
                 <a href="{{ path('home') }}" class="nav-logo">

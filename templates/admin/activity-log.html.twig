@@ -51,66 +51,10 @@
 
     <div class="card">
         <div class="card-body p-0">
-            <div class="table-responsive admin-table-wrap">
-                <table class="admin-table datatable"
-                       data-controller="realtime-poll"
-                       data-realtime-poll-topic-value="admin_activity_logs"
-                       data-realtime-poll-since-value="{{ realtime_version }}"
-                       data-realtime-mode="tbody">
-                    <thead>
-                        <tr>
-                            <th>User ID</th>
-                            <th>Username</th>
-                            <th>Role</th>
-                            <th>Action</th>
-                            <th>Target Data</th>
-                            <th>Date & Time</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for log in logs %}
-                        <tr>
-                            <td>
-                                {% if log.user %}
-                                    {{ log.user.id }}
-                                {% else %}
-                                    <em class="text-muted">-</em>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if log.username %}
-                                    {{ log.username }}
-                                {% elseif log.user %}
-                                    {{ log.user.email }}
-                                {% else %}
-                                    <em class="text-muted">System</em>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <span class="badge {% if log.role == 'ROLE_ADMIN' %}bg-danger{% elseif log.role == 'ROLE_ORGANIZER' %}bg-info{% else %}bg-secondary{% endif %}">
-                                    {{ log.role|replace({'ROLE_': ''})|title }}
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge {% if log.action == 'LOGIN' or log.action == 'LOGOUT' %}bg-primary{% elseif log.action == 'CREATE' %}bg-success{% elseif log.action == 'UPDATE' %}bg-warning text-dark{% elseif log.action == 'DELETE' %}bg-danger{% else %}bg-secondary{% endif %}">
-                                    {{ log.action }}
-                                </span>
-                            </td>
-                            <td>{{ log.targetData ?? log.description ?? 'N/A' }}</td>
-                            <td>{{ log.createdAt.format('Y-m-d H:i:s') }}</td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="6" class="text-center py-4">
-                                <div class="text-muted">
-                                    <i class="fas fa-history fa-2x mb-3"></i>
-                                    <p class="mb-0">No activity logs found</p>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="table-responsive admin-table-wrap"
+                 data-realtime-topic="admin_activity_logs"
+                 data-realtime-mode="inner">
+                {% include 'admin/activity-log/_table.html.twig' %}
             </div>
         </div>
     </div>

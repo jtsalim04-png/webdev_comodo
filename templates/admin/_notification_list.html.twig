@@ -1,0 +1,24 @@
+{% if notifications is empty %}
+    <p class="admin-notifications-empty">No purchases yet.</p>
+{% else %}
+    <ul class="admin-notifications-list">
+        {% for notification in notifications %}
+            <li class="admin-notification-item" data-notification-id="{{ notification.id }}">
+                <p class="admin-notification-message">
+                    <strong class="admin-notification-user">{{ notification.user }}</strong>
+                    purchased
+                    <strong class="admin-notification-event">{{ notification.event }}</strong>
+                    —
+                    <strong class="admin-notification-price">₱{{ notification.price|number_format(2, '.', ',') }}</strong>
+                </p>
+                <p class="admin-notification-meta">
+                    {% if notification.status != 'confirmed' %}
+                        <span class="admin-notification-status">{{ notification.status|title }}</span>
+                        ·
+                    {% endif %}
+                    <span class="admin-notification-time">{{ notification.text }}</span>
+                </p>
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
