@@ -6,7 +6,7 @@ use App\Entity\Event;
 use App\Entity\Ticket;
 use App\Entity\User;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception\TableNotFoundException;
+use Doctrine\DBAL\Exception;
 
 /**
  * Global data version for web polling — stored in DB (see Version20260529120000 migration).
@@ -23,8 +23,8 @@ class RealtimeVersionService
         try {
             $version = $this->connection->fetchOne('SELECT version FROM realtime_version WHERE id = 1');
 
-            return (int) $version;
-        } catch (TableNotFoundException) {
+            return $version === false ? 0 : (int) $version;
+        } catch (Exception|\Throwable) {
             return 0;
         }
     }
@@ -44,7 +44,7 @@ class RealtimeVersionService
             }
 
             return $version;
-        } catch (TableNotFoundException) {
+        } catch (Exception|\Throwable) {
             return 0;
         }
     }

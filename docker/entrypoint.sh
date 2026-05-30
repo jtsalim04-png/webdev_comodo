@@ -94,26 +94,6 @@ fi
 
 bootstrap_background() {
     (
-        if [ -n "${DATABASE_URL:-}" ]; then
-            echo "[background] Waiting for database..."
-            i=0
-            while [ "$i" -lt 30 ]; do
-                if console doctrine:query:sql "SELECT 1" >/dev/null 2>&1; then
-                    break
-                fi
-                i=$((i + 1))
-                sleep 1
-            done
-
-            echo "[background] Running migrations..."
-            console doctrine:migrations:migrate --no-interaction
-        fi
-
-        if [ ! -f config/jwt/private.pem ] || [ ! -f config/jwt/public.pem ]; then
-            echo "[background] Generating JWT key pair..."
-            console lexik:jwt:generate-keypair --skip-if-exists
-        fi
-
         if [ "${APP_ENV:-prod}" = "prod" ]; then
             echo "[background] Warming prod cache..."
             console cache:clear --no-warmup
@@ -125,7 +105,31 @@ bootstrap_background() {
     ) &
 }
 
+# DB, migrations, and JWT must finish before serving PHP traffic.
+if [ -n "${DATABASE_URL:-}" ]; then
+    echo "Waiting for database..."
+    i=0
+    while [ "$i" -lt 30 ]; do
+        if console doctrine:query:sql "SELECT 1" >/dev/null 2>&1; then
+            break
+        fi
+        i=$((i + 1))
+        sleep 1
+    done
+
+    echo "Running migrations..."
+    console doctrine:migrations:migrate --no-interaction
+fi
+
+if [ ! -f config/jwt/private.pem ] || [ ! -f config/jwt/public.pem ]; then
+    echo "Generating JWT key pair..."
+    console lexik:jwt:generate-keypair --skip-if-exists
+fi
+
 bootstrap_background
+
+mkdir -p var/cache var/log
+chown -R www-data:www-data var 2>/dev/null || true
 
 php-fpm -D
 

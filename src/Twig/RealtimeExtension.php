@@ -3,20 +3,18 @@
 namespace App\Twig;
 
 use App\Service\RealtimeVersionService;
-use Twig\Extension\AbstractExtension;
-use Twig\Extension\GlobalsInterface;
+use Twig\Attribute\AsTwigFunction;
 
-class RealtimeExtension extends AbstractExtension implements GlobalsInterface
+final class RealtimeExtension
 {
     public function __construct(
         private RealtimeVersionService $realtimeVersionService,
     ) {
     }
 
-    public function getGlobals(): array
+    #[AsTwigFunction('realtime_version')]
+    public function getVersion(): int
     {
-        return [
-            'realtime_version' => $this->realtimeVersionService->getVersion(),
-        ];
+        return $this->realtimeVersionService->getVersion();
     }
 }
