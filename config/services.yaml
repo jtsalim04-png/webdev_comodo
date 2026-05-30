@@ -7,6 +7,18 @@ parameters:
     app.url: '%env(default::string:APP_URL)%'
     default_mailer_from: 'noreply@localhost'
     default_mailer_from_name: 'Comodo Booking'
+    # Fallbacks when Railway / prod omits vars from .env (not deployed in Docker image).
+    env(TRUSTED_PROXIES): '127.0.0.1,REMOTE_ADDR'
+    env(DEFAULT_URI): 'http://localhost'
+    env(CORS_ALLOW_ORIGIN): '^https?://.*$'
+    env(MESSENGER_TRANSPORT_DSN): 'doctrine://default?auto_setup=0'
+    env(JWT_PASSPHRASE): 'change_me_jwt_passphrase'
+    env(GOOGLE_CLIENT_ID): ''
+    env(GOOGLE_CLIENT_SECRET): ''
+    env(MAILER_DSN): 'null://null'
+    env(BREVO_API_KEY): ''
+    env(BREVO_SMTP_USER): ''
+    env(BREVO_SMTP_KEY): ''
 
 services:
     # default configuration for services in *this* file
